@@ -2,7 +2,6 @@ from pathlib import Path
 from torch.autograd import Variable
 import torch
 import os
-import cv2
 import pandas as pd
 import time
 import numpy as np
@@ -11,7 +10,7 @@ from skimage import io
 # from tqdm import tqdm
 from tqdm import tqdm_notebook as tqdm
 
-from utils import clear, count_sliding_window, make_optimizer, make_scheduler, CrossEntropy2d, accuracy, metrics, sliding_window, grouper, convert_from_color, convert_to_color, global_accuracy
+from utils import clear, count_sliding_window, make_optimizer, make_scheduler, CrossEntropy2d, accuracy, metrics, save_test, sliding_window, grouper, convert_from_color, convert_to_color, global_accuracy
 from segmentation_models_pytorch.losses import FocalLoss, DiceLoss
 # from focal_loss.focal_loss import FocalLoss
 
@@ -57,13 +56,10 @@ class Trainer():
         self.last_epoch = checkpoint['epoch']
         self.last_loss = checkpoint['loss']
         self.model_id = checkpoint['model_id']
-        try:
-            self.mean_losses = checkpoint['mean_losses']
-        except KeyError:
-            self.mean_losses = np.zeros(100000000)
+        self.losses = checkpoint['losses']
+        self.mean_losses = checkpoint['mean_losses']
+        self.iter_ = checkpoint['iter_']
             
-        print(self.last_epoch)
-        
         # Load model and optimizer params
         self.net.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -80,12 +76,14 @@ class Trainer():
         torch.save({
             'epoch': self.last_epoch,
             'loss': self.last_loss,
+            'losses': self.losses,
             'mean_losses': self.mean_losses,
+            'iter_': self.iter_,
             'model_id': self.model_id,
             'model_state_dict': self.net.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         }, path)
-    
+        
     def prepare(self, l, volatile=False):
         device = torch.device('cpu' if self.params['cpu'] is not None else 'cuda') # Define run-device torch
         def _prepare(tensor):
@@ -167,16 +165,6 @@ class Trainer():
             pred = np.argmax(pred, axis=-1)
 
             # Display the result
-            # clear()
-            # print(f'--- {input_ids} ---')
-            
-            # fig = plt.figure()
-            # fig.add_subplot(1,3,1)
-            # plt.imshow(np.asarray(255 * img, dtype='uint8'))
-            # fig.add_subplot(1,3,2)
-            # plt.imshow(convert_to_color(pred))
-            # fig.add_subplot(1,3,3)
-            # plt.imshow(gt)
             fig = plt.figure()
             ax1 = fig.add_subplot(1,3,1)
             ax1.set_title('RGB')
@@ -204,9 +192,9 @@ class Trainer():
                 all=True,
                 filepath=filepath
             )
-            np.savetxt(f'./tmp/{filepath}/{filepath}_outp.csv', gt_e, delimiter=',')
-            np.savetxt(f'./tmp/{filepath}/{filepath}_pred.csv', pred, delimiter=',')
+
         if all:
+            save_test(acc=accuracy, all_preds=all_preds, all_gts=all_gts)
             return accuracy, all_preds, all_gts
         else:
             return accuracy
@@ -238,11 +226,7 @@ class Trainer():
             
             self.optimizer.zero_grad()
             output = self.net(data)
-            # loss = CrossEntropy2d(output, target, self.weight_cls[0]) # Calculate the loss function
-            # dice_loss = DiceLoss(mode='multiclass', classes=self.weight_cls[0])(output, target)
-            # focal_loss = FocalLoss(mode='multiclass', gamma=2.0)(output, target)
-            # loss = dice_loss + (1*focal_loss)
-            loss = FocalLoss(mode='multiclass', gamma=2.0)(output, target)
+            loss = CrossEntropy2d(output, target, self.weight_cls[0]) # Calculate the loss function
             
             loss.backward()
             self.optimizer.step()
@@ -265,7 +249,7 @@ class Trainer():
                 rgb = np.asarray(255 * np.transpose(image,(1,2,0)), dtype='uint8')
                 pred = np.argmax(output.data.cpu().numpy()[0], axis=0)
                 gt = target.data.cpu().numpy()[0]
-                print('Train (epoch {}/{}) [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tAccuracy: {}'.format(epoch, self.params['maximum_epochs'], batch_idx, len(self.loader['train']),100. * batch_idx / len(self.loader['train']), loss.item(), accuracy(pred, gt)))
+                # print('Train (epoch {}/{}) [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tAccuracy: {}'.format(epoch, self.params['maximum_epochs'], batch_idx, len(self.loader['train']),100. * batch_idx / len(self.loader['train']), loss.item(), accuracy(pred, gt)))
                 fig = plt.figure()
                 plt.plot(self.mean_losses[:self.iter_]) #and plt.show()
                 fig.savefig(f"./tmp/train_mean_loss", dpi=fig.dpi, bbox_inches='tight')
@@ -283,34 +267,13 @@ class Trainer():
                 # plt.show()
                 fig.savefig(f"./tmp/train_progress", dpi=fig.dpi, bbox_inches='tight')
                 
-                self.last_loss = running_loss
-                running_loss = 0.0
-                
+            self.last_loss = running_loss
+            running_loss = 0.0
             self.iter_ += 1
-        
 
             del(data, target, loss)
         
         if self.scheduler is not None:
             self.scheduler.step()
-        # if epoch % self.params['save_epoch'] == 0:
-        #     # We validate with the largest possible stride for faster computing
-        #     acc = self.test(stride = min(self.params['window_size']), all=False)
             
-        #     torch.save({
-        #         'epoch': epoch,
-        #         'model_state_dict': self.net.state_dict(),
-        #         'optimizer_state_dict': self.optimizer.state_dict(),
-        #         # 'loss': loss,
-        #     }, './segnet256_epoch{}_{:.2f}'.format(epoch, acc))
-        #     # torch.save(net.state_dict(), './segnet256_epoch{}_{}'.format(e, acc))
-        
         return self.last_loss
-        
-    # torch.save(net.state_dict(), './segnet_final')
-    # torch.save({
-    #     'epoch': epoch,
-    #     'model_state_dict': net.state_dict(),
-    #     'optimizer_state_dict': optimizer.state_dict(),
-    #     # 'loss': loss,
-    # }, './segnet_final')
