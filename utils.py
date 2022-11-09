@@ -371,7 +371,28 @@ def plot_confusion_matrix_local(cm,
         fig.savefig(f"./tmp/cm", dpi=fig.dpi, bbox_inches='tight')
     else:
         plt.show()
-        
+
+def save_test(acc, all_preds, all_gts, path=None):
+    try:
+        print('************** save test results **************')
+        if path is None:
+            path = './segnet256_test_result'
+            
+        np.savez_compressed(path, {
+            'acc': acc,
+            'all_preds': all_preds,
+            'all_gts': all_gts,
+        })
+    except:
+        print('[AVISO] Erro ao salvar os resultados do teste!')
+        pass
+    
+def load_test(path=None):
+    assert os.path.exists(path), "{} cant be opened".format(path)
+    
+    data = np.load(path, allow_pickle=True)
+    return data.item()
+    
         
 def seed_everything(seed: int):    
     random.seed(seed)
