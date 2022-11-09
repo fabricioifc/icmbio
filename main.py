@@ -23,7 +23,7 @@ def is_save_epoch(epoch, ignore_epoch=0):
     return params['save_epoch'] is not None and epoch % params['save_epoch'] == 0 and epoch != ignore_epoch
 
 if __name__=='__main__':
-    seed_everything(42)
+    # seed_everything(42)
     
     # Params
     params = {
@@ -121,8 +121,8 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    # cbkp='D:/Projetos/aerialseg_kaggle/bizotto/tmp/20221027_focal_dice/segnet_final_60'
-    trainer = Trainer(model, loader, params)
+    cbkp=None#'D:/Projetos/aerialseg_kaggle/bizotto/tmp/20221027_focal_dice/segnet_final_60'
+    trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
     clear()
@@ -131,8 +131,8 @@ if __name__=='__main__':
         train_metric = trainer.train()
         
         if is_save_epoch(epoch, ignore_epoch=params['maximum_epochs']):
-            acc = trainer.test(stride = min(params['window_size']), all=False)
-            trainer.save('./segnet256_epoch_{}_{:.2f}'.format(epoch, acc))
+            # acc = trainer.test(stride = min(params['window_size']), all=False)
+            trainer.save('./segnet256_epoch_{}'.format(epoch))
             
     acc, all_preds, all_gts = trainer.test(all=True, stride=32)
     trainer.save('./segnet_final_{}_{:.2f}'.format('test', acc))
