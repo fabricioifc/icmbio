@@ -278,8 +278,7 @@ class Trainer():
         self.epoch_loss.append(running_loss/len(self.loader['train']))
         
         fig = plt.figure()
-        # plt.plot(np.linspace(1, self.last_epoch+1, len(self.epoch_loss)).astype(int), self.epoch_loss)
-        plt.plot(self.epoch_loss, '-o')
+        plt.plot(np.linspace(1, len(self.epoch_loss), len(self.epoch_loss)).astype(int), self.epoch_loss, '-o')
         plt.xlabel('epoch')
         plt.ylabel('loss')
         plt.title('Train Loss/Epoch')
