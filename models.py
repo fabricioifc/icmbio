@@ -968,7 +968,7 @@ class SegNet_two_pools_test(nn.Module):
         x = self.unpool1(x, mask1)
         x = self.conv1_2_D_bn(F.relu(self.conv1_2_D(x)))
         #x = self.conv1_1_D(x)
-        x = F.log_softmax(self.conv1_1_D(x))
+        x = F.log_softmax(self.conv1_1_D(x), dim=1)
         return x
     
     def load_weights_VGG16(self):
