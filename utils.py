@@ -151,39 +151,6 @@ def make_scheduler(args, optimizer):
     return scheduler
 
 
-
-""" 2D version of the cross entropy loss """
-# def CrossEntropy2d(input, target, weight=None, size_average=True):
-#     dim = input.dim()
-#     if dim == 2:
-#         return F.cross_entropy(input, target, weight, size_average)
-#     elif dim == 4:
-#         output = input.view(input.size(0), input.size(1), -1)
-#         output = torch.transpose(output, 1, 2).contiguous()
-#         output = output.view(-1, output.size(2))
-#         target = target.view(-1)
-#         return F.cross_entropy(output, target, weight, size_average)
-#     else:
-#         raise ValueError('Expected 2 or 4 dimensions (got {})'.format(dim))
-
-
-
-# """ Acurracy metric formulation """
-# def accuracy(input, target):
-#     return 100 * float(np.count_nonzero(input == target)) / target.size
-
-
-
-""" Browse an iterator by chunk of n elements """
-# def grouper(n, iterable):
-#     it = iter(iterable)
-#     while True:
-#         chunk = tuple(itertools.islice(it, n))
-#         if not chunk:
-#             return
-#         yield chunk
-
-
 def calculate_cm(predictions, labels, label_values = None, normalize = None):
     return confusion_matrix(labels, predictions, labels=label_values, normalize=normalize)
 
