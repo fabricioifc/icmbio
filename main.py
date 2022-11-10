@@ -32,7 +32,7 @@ if __name__=='__main__':
         #  'root_dir': 'D:\\Export_Google_TIF\\20220803\\saida',
         'window_size': (256, 256),
         'cache': True,
-        'bs': 6,
+        'bs': 8,
         'n_classes': 9,
         'classes': ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         'cpu': None,
@@ -51,13 +51,8 @@ if __name__=='__main__':
         },
         'weights': '',
         'maximum_epochs': 100,
-        'save_epoch': 25,
+        'save_epoch': 5,
         'print_each': 100,
-        'model': {
-            'encoder': 'resnet18',
-            'encoder_weights': 'imagenet',
-            'activation': None,
-        }
     }
 
     params['weights'] = torch.ones(params['n_classes']) 
@@ -128,7 +123,7 @@ if __name__=='__main__':
     clear()
     
     for epoch in range(1, params['maximum_epochs'] + 1):
-        train_metric = trainer.train()
+        trainer.train()
         
         if is_save_epoch(epoch, ignore_epoch=params['maximum_epochs']):
             # acc = trainer.test(stride = min(params['window_size']), all=False)

@@ -22,12 +22,13 @@ class Trainer():
         self.loader = loader
         self.params = params
         self.iter_ = 0
+        self.epoch_loss = []
         self.losses = np.zeros(1000000)
         self.mean_losses = np.zeros(100000000)
         self.print_each = params['print_each'] or 100 # Print statistics every 500 iterations
         
-        # Weights for class balancing
-        self.weight_cls = self.prepare([self.params['weights']])
+        # # Weights for class balancing
+        # self.weight_cls = self.prepare([self.params['weights']])
         
         # Define an id to a trained model. Use the number of seconds since 1970
         time_ = str(time.time())
@@ -39,7 +40,6 @@ class Trainer():
         # Create scheduler
         self.scheduler = make_scheduler(self.params['lrs_params'], self.optimizer) if scheduler else None
 
-        self.last_loss = 0.0
         self.last_epoch = 0.0
 
         # Load a previously model if it exists
@@ -54,11 +54,12 @@ class Trainer():
         checkpoint = torch.load(path)
 
         self.last_epoch = checkpoint['epoch']
-        self.last_loss = checkpoint['loss']
         self.model_id = checkpoint['model_id']
         self.losses = checkpoint['losses']
         self.mean_losses = checkpoint['mean_losses']
+        self.epoch_loss = checkpoint['epoch_loss']
         self.iter_ = checkpoint['iter_']
+        # self.acc_ = checkpoint['acc_']
             
         # Load model and optimizer params
         self.net.load_state_dict(checkpoint['model_state_dict'])
@@ -75,20 +76,21 @@ class Trainer():
         # Save current loss, epoch, model weights and optimizer params
         torch.save({
             'epoch': self.last_epoch,
-            'loss': self.last_loss,
             'losses': self.losses,
             'mean_losses': self.mean_losses,
+            'epoch_loss': self.epoch_loss,
             'iter_': self.iter_,
+            # 'acc_': self.acc_,
             'model_id': self.model_id,
             'model_state_dict': self.net.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         }, path)
         
-    def prepare(self, l, volatile=False):
+    def prepare(self, l, non_blocking=True):
         device = torch.device('cpu' if self.params['cpu'] is not None else 'cuda') # Define run-device torch
-        def _prepare(tensor):
+        def _prepare(tensor: torch.Tensor):
             if self.params['precision'] == 'half': tensor = tensor.half() # Convert to half precision
-            return tensor.to(device)
+            return tensor.to(device, non_blocking=non_blocking)
         return [_prepare(_l) for _l in l]
 
     def test(self, test_loader = None, stride = None, window_size = None, batch_size = None, all=False):
@@ -203,31 +205,29 @@ class Trainer():
     def train(self):
         running_loss = 0.0
         
+        # Weights for class balancing
+        weight_cls = self.prepare([self.params['weights']])
+        
         if self.scheduler is not None:
             epoch = self.scheduler.last_epoch
         else:
             epoch = self.last_epoch + 1
         
-        # epoch = 1 if epoch == 0 else epoch
         self.last_epoch = epoch
-        
         self.optimizer.step()
         
         # if self.scheduler is not None:
         #     self.scheduler.step()
 
         self.net.train()
-        for batch_idx, (data, target) in enumerate(self.loader['train']):
-            # print('Training epoch {}/{}, Batch {}/{}, Iteração {}'.format(epoch, self.params['maximum_epochs'], batch_idx, len(self.loader['train']), self.iter_))
-            data, target = self.prepare([data, target]) # Prepare input and labels 
-            # data, target = Variable(data.cuda()), Variable(target.cuda())
-            # data = data.to(self.params["device"], non_blocking=True)
-            # target = target.to(self.params["device"], non_blocking=True)
+        for batch_id, (inputs, labels) in enumerate(self.loader['train']):
+            inputs, labels = self.prepare([inputs, labels]) # Prepare input and labels 
             
+            outputs = self.net(inputs)
+            loss = CrossEntropy2d(outputs, labels, weight_cls[0]) # Calculate the loss function
+            
+            # compute gradient and do SGD step
             self.optimizer.zero_grad()
-            output = self.net(data)
-            loss = CrossEntropy2d(output, target, self.weight_cls[0]) # Calculate the loss function
-            
             loss.backward()
             self.optimizer.step()
             
@@ -236,44 +236,51 @@ class Trainer():
             self.mean_losses[self.iter_] = np.mean(self.losses[max(0,self.iter_-100):self.iter_])
             
             clear()
-            print('Training (epoch {}/{}) [{}/{} ({:.0f}%)]\tIteração {}\tLoss: {:.6f}'.format(
-                    epoch, self.params['maximum_epochs'], batch_idx, len(self.loader['train']),
-                    100. * batch_idx / len(self.loader['train']), self.iter_, loss.item()
+            print('Training (epoch {}/{}) [{}/{} ({:.0f}%)]\tIteração {}\tLoss: {:.4f}'.format(
+                    epoch + 1, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
+                    100. * batch_id / len(self.loader['train']), self.iter_, loss.item()
                 )
             )
             
             if self.iter_ % self.print_each == 0:
-                image = data.data.cpu().numpy()[0]
-                # print(image.shape)
+                image = inputs.data.cpu().numpy()[0]
+                targets = labels.data.cpu().numpy()[0] #Labels
                 # rgb = np.asarray(255 * np.transpose(data.data.cpu().numpy()[0],(1,2,0)), dtype='uint8')
                 rgb = np.asarray(255 * np.transpose(image,(1,2,0)), dtype='uint8')
-                pred = np.argmax(output.data.cpu().numpy()[0], axis=0)
-                gt = target.data.cpu().numpy()[0]
+                pred = np.argmax(outputs.data.cpu().numpy()[0], axis=0)
+                
+                # acc = accuracy(pred, targets)
+                
                 # print('Train (epoch {}/{}) [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tAccuracy: {}'.format(epoch, self.params['maximum_epochs'], batch_idx, len(self.loader['train']),100. * batch_idx / len(self.loader['train']), loss.item(), accuracy(pred, gt)))
                 fig = plt.figure()
                 plt.plot(self.mean_losses[:self.iter_]) #and plt.show()
                 fig.savefig(f"./tmp/train_mean_loss", dpi=fig.dpi, bbox_inches='tight')
-
+                
                 fig = plt.figure()
                 ax1 = fig.add_subplot(131)
                 ax1.set_title('RGB')
                 plt.imshow(rgb)
                 ax2 = fig.add_subplot(132)
                 ax2.set_title('Ground truth')
-                plt.imshow(convert_to_color(gt))
+                plt.imshow(convert_to_color(targets))
                 ax3 = fig.add_subplot(133)
                 ax3.set_title('Prediction')
                 plt.imshow(convert_to_color(pred))
                 # plt.show()
                 fig.savefig(f"./tmp/train_progress", dpi=fig.dpi, bbox_inches='tight')
                 
-            self.last_loss = running_loss
-            running_loss = 0.0
             self.iter_ += 1
-
-            del(data, target, loss)
+            del(inputs, labels, loss)
         
         if self.scheduler is not None:
             self.scheduler.step()
             
-        return self.last_loss
+        self.epoch_loss.append(running_loss/len(self.loader['train']))
+        
+        fig = plt.figure()
+        # plt.plot(np.linspace(1, self.last_epoch+1, len(self.epoch_loss)).astype(int), self.epoch_loss)
+        plt.plot(self.epoch_loss, '-o')
+        plt.xlabel('epoch')
+        plt.ylabel('loss')
+        plt.title('Train Loss/Epoch')
+        fig.savefig(f"./tmp/train_epoch_loss", dpi=fig.dpi, bbox_inches='tight')

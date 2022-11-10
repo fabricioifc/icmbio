@@ -1,7 +1,5 @@
 """ Models definitions archictures """
 import os
-import os.path as osp
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -13,6 +11,14 @@ try:
 except ImportError:
     from urllib import URLopener
 
+
+
+
+import os.path as osp
+
+import numpy as np
+import torch
+import torch.nn as nn
 
 
 # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/surgery.py
@@ -962,8 +968,7 @@ class SegNet_two_pools_test(nn.Module):
         x = self.unpool1(x, mask1)
         x = self.conv1_2_D_bn(F.relu(self.conv1_2_D(x)))
         #x = self.conv1_1_D(x)
-        # x = F.log_softmax(self.conv1_1_D(x))
-        x = F.log_softmax(self.conv1_1_D(x), dim=1)
+        x = F.log_softmax(self.conv1_1_D(x))
         return x
     
     def load_weights_VGG16(self):
@@ -1177,7 +1182,7 @@ class SegNet_two_pools_skip(nn.Module):
         x = torch.cat([x, conv1], dim=1)
         x = self.conv1_2_D_bn(F.relu(self.conv1_2_D(x)))
         #x = self.conv1_1_D(x)
-        # x = F.log_softmax(self.conv1_1_D(x))
+        x = F.log_softmax(self.conv1_1_D(x))
         return x
     
 
