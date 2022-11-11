@@ -127,10 +127,10 @@ if __name__=='__main__':
         
         if is_save_epoch(epoch, ignore_epoch=params['maximum_epochs']):
             # acc = trainer.test(stride = min(params['window_size']), all=False)
-            trainer.save('./segnet256_epoch_{}'.format(epoch))
+            trainer.save('./segnet256_epoch_{}.pth.tar'.format(epoch))
             
-    acc, all_preds, all_gts = trainer.test(all=True, stride=32)
-    trainer.save('./segnet_final_{}_{:.2f}'.format('test', acc))
+    # acc, all_preds, all_gts = trainer.test(all=True, stride=32)
+    trainer.save('./segnet_final_{}.pth.tar'.format(params['maximum_epochs']))
     
     input_ids, label_ids = test_loader.dataset.get_dataset()
     all_ids = [os.path.split(f)[1].split('.')[0] for f in input_ids]

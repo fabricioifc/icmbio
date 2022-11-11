@@ -214,7 +214,7 @@ class Trainer():
             epoch = self.last_epoch + 1
         
         self.last_epoch = epoch
-        self.optimizer.step()
+        # self.optimizer.step()
         
         # if self.scheduler is not None:
         #     self.scheduler.step()
