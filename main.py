@@ -50,12 +50,14 @@ if __name__=='__main__':
             'gamma': 0.1
         },
         'weights': '',
-        'maximum_epochs': 99,
+        'maximum_epochs': 100,
         'save_epoch': 10,
         'print_each': 100,
     }
 
-    params['weights'] = torch.ones(params['n_classes']) 
+    params['weights'] = torch.ones(params['n_classes'])
+    # weights = np.array([1,1,5,4,5,6,6,8,6])
+    # params['weights'] = torch.from_numpy(weights / np.linalg.norm(weights))
     
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
@@ -116,7 +118,7 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp='D:\\Projetos\\icmbio\\tmp\\20221116_focal_loss_only\\segnet256_epoch_99.pth.tar'
+    cbkp=None#'D:\\Projetos\\icmbio\\tmp\\20221116_focal_loss_only\\segnet256_epoch_99.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
