@@ -11,8 +11,8 @@ from skimage import io
 from tqdm import tqdm_notebook as tqdm
 
 from utils import clear, count_sliding_window, make_optimizer, make_scheduler, CrossEntropy2d, accuracy, metrics, save_test, sliding_window, grouper, convert_from_color, convert_to_color, global_accuracy
-from segmentation_models_pytorch.losses import FocalLoss, DiceLoss
-# from focal_loss.focal_loss import FocalLoss
+from segmentation_models_pytorch.losses import DiceLoss
+from focal_loss import FocalLoss
 
 class Trainer():
     
@@ -28,7 +28,8 @@ class Trainer():
         self.print_each = params['print_each'] or 100 # Print statistics every 500 iterations
         
         # # Weights for class balancing
-        # self.weight_cls = self.prepare([self.params['weights']])
+        self.weight_cls = self.prepare([self.params['weights']])
+        self.criterion = FocalLoss(weight=self.weight_cls[0], gamma=2.0)
         
         # Define an id to a trained model. Use the number of seconds since 1970
         time_ = str(time.time())
@@ -40,7 +41,7 @@ class Trainer():
         # Create scheduler
         self.scheduler = make_scheduler(self.params['lrs_params'], self.optimizer) if scheduler else None
 
-        self.last_epoch = 0.0
+        self.last_epoch = 0
 
         # Load a previously model if it exists
         if cbkp is not None:
@@ -204,16 +205,7 @@ class Trainer():
 
     def train(self):
         running_loss = 0.0
-        
-        # Weights for class balancing
-        weight_cls = self.prepare([self.params['weights']])
-        
-        if self.scheduler is not None:
-            epoch = self.scheduler.last_epoch
-        else:
-            epoch = self.last_epoch + 1
-        
-        self.last_epoch = epoch
+        self.last_epoch = self.scheduler.last_epoch if self.scheduler is not None else self.last_epoch + 1
         # self.optimizer.step()
         
         # if self.scheduler is not None:
@@ -224,7 +216,8 @@ class Trainer():
             inputs, labels = self.prepare([inputs, labels]) # Prepare input and labels 
             
             outputs = self.net(inputs)
-            loss = CrossEntropy2d(outputs, labels, weight_cls[0]) # Calculate the loss function
+            #loss = CrossEntropy2d(outputs, labels, weight_cls[0]) # Calculate the loss function
+            loss = self.criterion(outputs, labels) 
             
             # compute gradient and do SGD step
             self.optimizer.zero_grad()
@@ -237,7 +230,7 @@ class Trainer():
             
             clear()
             print('Training (epoch {}/{}) [{}/{} ({:.0f}%)]\tIteração {}\tLoss: {:.4f}'.format(
-                    epoch + 1, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
+                    self.last_epoch + 1, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
                     100. * batch_id / len(self.loader['train']), self.iter_, loss.item()
                 )
             )

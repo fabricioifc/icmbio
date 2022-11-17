@@ -50,8 +50,8 @@ if __name__=='__main__':
             'gamma': 0.1
         },
         'weights': '',
-        'maximum_epochs': 100,
-        'save_epoch': 5,
+        'maximum_epochs': 99,
+        'save_epoch': 10,
         'print_each': 100,
     }
 
@@ -116,21 +116,21 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp=None#'D:/Projetos/aerialseg_kaggle/bizotto/tmp/20221027_focal_dice/segnet_final_60'
+    cbkp='D:\\Projetos\\icmbio\\tmp\\20221116_focal_loss_only\\segnet256_epoch_99.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
     clear()
     
-    for epoch in range(1, params['maximum_epochs'] + 1):
+    for epoch in range(trainer.last_epoch + 1, params['maximum_epochs']):
         trainer.train()
         
         if is_save_epoch(epoch, ignore_epoch=params['maximum_epochs']):
             # acc = trainer.test(stride = min(params['window_size']), all=False)
             trainer.save('./segnet256_epoch_{}.pth.tar'.format(epoch))
             
-    # acc, all_preds, all_gts = trainer.test(all=True, stride=32)
     trainer.save('./segnet_final_{}.pth.tar'.format(params['maximum_epochs']))
+    acc, all_preds, all_gts = trainer.test(all=True, stride=32)
     
     input_ids, label_ids = test_loader.dataset.get_dataset()
     all_ids = [os.path.split(f)[1].split('.')[0] for f in input_ids]
