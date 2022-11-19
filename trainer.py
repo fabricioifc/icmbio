@@ -11,8 +11,8 @@ from skimage import io
 from tqdm import tqdm_notebook as tqdm
 
 from utils import clear, count_sliding_window, make_optimizer, make_scheduler, CrossEntropy2d, accuracy, metrics, save_test, sliding_window, grouper, convert_from_color, convert_to_color, global_accuracy
-from segmentation_models_pytorch.losses import DiceLoss, FocalLoss
-# from focal_loss import FocalLoss
+from segmentation_models_pytorch.losses import DiceLoss
+from focal_loss import FocalLoss
 # from recal_loss import RecallLoss
 
 class Trainer():
@@ -30,7 +30,7 @@ class Trainer():
         
         # # Weights for class balancing
         self.weight_cls = self.prepare([self.params['weights']])
-        # self.criterion = FocalLoss(weight=self.weight_cls[0], gamma=2.0)
+        self.criterion = FocalLoss(weight=self.weight_cls[0], gamma=2.0)
         
         # Define an id to a trained model. Use the number of seconds since 1970
         time_ = str(time.time())
@@ -219,15 +219,15 @@ class Trainer():
             
             outputs = self.net(inputs)
             #loss = CrossEntropy2d(outputs, labels, weight_cls[0]) # Calculate the loss function
-            # loss = self.criterion(outputs, labels) 
-            dice = DiceLoss(mode='multiclass', classes=self.params['classes'])
-            focal = FocalLoss(mode='multiclass', gamma=4.0)
-            loss = dice + (1*focal)
+            loss = self.criterion(outputs, labels) 
+            # dice_loss = DiceLoss(mode='multiclass', classes=self.weight_cls[0])(outputs, labels)
+            # focal_loss = FocalLoss(mode='multiclass', gamma=4.0)(outputs, labels)
+            # loss = dice_loss + (1*focal_loss)
             
             # compute gradient and do SGD step
+            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            self.optimizer.zero_grad()
             
             running_loss += loss.item()
             self.losses[self.iter_] = loss.item()
