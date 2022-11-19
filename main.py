@@ -55,7 +55,11 @@ if __name__=='__main__':
         'print_each': 100,
     }
 
-    params['weights'] = torch.ones(params['n_classes'])
+    # params['weights'] = torch.ones(params['n_classes'])
+    params['weights'] = torch.from_numpy(
+        np.array([0.01483752, 0.08235605, 0.942551, 0.02987295, 0.00975076, 0.07935289, 0.05774, 0.23285624, 0.19938568])
+    )
+    
     # weights = np.array([1,1,5,4,5,6,6,8,6])
     # params['weights'] = torch.from_numpy(weights / np.linalg.norm(weights))
     
