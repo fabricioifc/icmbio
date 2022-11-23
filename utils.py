@@ -343,7 +343,7 @@ def save_test(acc, all_preds, all_gts, path=None):
     try:
         print('************** save test results **************')
         if path is None:
-            path = './segnet256_test_result'
+            path = './segnet256_test_result.npz'
             
         np.savez_compressed(path, {
             'acc': acc,
@@ -359,8 +359,18 @@ def load_test(path=None):
     
     data = np.load(path, allow_pickle=True)
     return data.item()
-    
+
+def save_loss_weights(data, path=None):
+    if path is None:
+        path = './loss_weights.npy'
+    np.save(path, data)
         
+def load_loss_weights(path=None):
+    if path is None:
+        path = './loss_weights.npy'
+    x = np.load(path, allow_pickle=True)
+    return x.item()
+
 def seed_everything(seed: int):    
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)

@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import pandas as pd
 from glob import glob
+from utils import load_loss_weights
 
 from dataset import DatasetIcmbio
 from trainer import Trainer
@@ -54,14 +55,11 @@ if __name__=='__main__':
         'save_epoch': 10,
         'print_each': 100,
     }
-
-    # params['weights'] = torch.ones(params['n_classes'])
-    params['weights'] = torch.from_numpy(
-        np.array([0.01483752, 0.08235605, 0.942551, 0.02987295, 0.00975076, 0.07935289, 0.05774, 0.23285624, 0.19938568])
-    )
     
-    # weights = np.array([1,1,5,4,5,6,6,8,6])
-    # params['weights'] = torch.from_numpy(weights / np.linalg.norm(weights))
+    # params['weights'] = torch.ones(params['n_classes'])
+    loss_weights = load_loss_weights('./loss_weights.npy')
+    if loss_weights is not None:
+        params['weights'] = torch.from_numpy(loss_weights['weights_norm']).float()
     
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
@@ -122,7 +120,7 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp=None#'D:\\Projetos\\icmbio\\tmp\\20221116_focal_loss_only\\segnet256_epoch_99.pth.tar'
+    cbkp=None#'D:\\Projetos\\icmbio\\tmp\\20221122_cross_entropy\\segnet_final_100.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
@@ -137,6 +135,7 @@ if __name__=='__main__':
             
     trainer.save('./segnet_final_{}.pth.tar'.format(params['maximum_epochs']))
     acc, all_preds, all_gts = trainer.test(all=True, stride=32)
+    print(f'Global Accuracy: {acc}')
     
     input_ids, label_ids = test_loader.dataset.get_dataset()
     all_ids = [os.path.split(f)[1].split('.')[0] for f in input_ids]
@@ -145,4 +144,4 @@ if __name__=='__main__':
         img = convert_to_color(p)
         # plt.imshow(img) and plt.show()
         io.imsave('./tmp/inference_tile_{}.png'.format(id_), img)
-        
+         
