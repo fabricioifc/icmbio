@@ -24,13 +24,10 @@ def is_save_epoch(epoch, ignore_epoch=0):
     return params['save_epoch'] is not None and epoch % params['save_epoch'] == 0 and epoch != ignore_epoch
 
 if __name__=='__main__':
-    # seed_everything(42)
     
     # Params
     params = {
-        # 'root_dir': 'D:\datasets\Vaihingen',
         'root_dir': 'D:\\datasets\\ICMBIO\\all',
-        #  'root_dir': 'D:\\Export_Google_TIF\\20220803\\saida',
         'window_size': (256, 256),
         'cache': True,
         'bs': 8,
