@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(1, '/home/fabricio/Projetos/icmbio/')
+
 import os
 import glob
 from skimage import io
@@ -6,7 +9,7 @@ import numpy as np
 import pandas as pd
 from utils import save_loss_weights
 
-EXT = 'tif'
+EXT = 'png'
 DEV = 3
 
 class WeightsCalculator():
@@ -20,8 +23,9 @@ class WeightsCalculator():
         self.M = None # Soma dos pixels de todas as imagens
         
         assert os.path.exists(label_dir), "{}. Diretório não existe".format(label_dir)
-        
         image_list = glob.glob(f"{label_dir}/*.{EXT}")
+        assert len(image_list) > 0, f'Nenhuna imagem na pasta -> {label_dir}'
+        
 
         print(f'--- Carregando as {len(image_list)} imagens ---')
         if dev:
@@ -82,10 +86,10 @@ class WeightsCalculator():
 if __name__=='__main__':
     
     wc= WeightsCalculator(
-        label_dir='D:\\datasets\\ICMBIO\\all\\label',
-        classes=["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
+        label_dir='/home/fabricio/Downloads/dataset/label',
+        classes=["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua", "Vegetacao Rasteira"],
         dev=False,
-        filename='loss_weights'
+        filename='extra/loss_weights'
     )
     weights, weights_norm = wc.calculate_and_save()
     

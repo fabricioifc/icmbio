@@ -30,7 +30,7 @@ class Trainer():
         
         # # Weights for class balancing
         self.weight_cls = self.prepare([self.params['weights']])
-        # self.criterion = FocalLoss(weight=self.weight_cls[0], gamma=3.0)
+        self.criterion = FocalLoss(weight=self.weight_cls[0], gamma=2.0)
         
         # Define an id to a trained model. Use the number of seconds since 1970
         time_ = str(time.time())
@@ -222,8 +222,8 @@ class Trainer():
             inputs, labels = self.prepare([inputs, labels]) # Prepare input and labels 
             
             outputs = self.net(inputs)
-            loss = CrossEntropy2d(outputs, labels, self.weight_cls[0]) # Calculate the loss function
-            # loss = self.criterion(outputs, labels) 
+            # loss = CrossEntropy2d(outputs, labels, self.weight_cls[0]) # Calculate the loss function
+            loss = self.criterion(outputs, labels) 
             # dice_loss = DiceLoss(mode='multiclass', classes=self.weight_cls[0])(outputs, labels)
             # focal_loss = FocalLoss(mode='multiclass', gamma=4.0)(outputs, labels)
             # loss = dice_loss + (1*focal_loss)
@@ -239,7 +239,7 @@ class Trainer():
             
             clear()
             print('Training (epoch {}/{}) [{}/{} ({:.0f}%)]\tIteração {}\tLoss: {:.4f}'.format(
-                    self.last_epoch + 1, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
+                    self.last_epoch, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
                     100. * batch_id / len(self.loader['train']), self.iter_, loss.item()
                 )
             )

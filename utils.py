@@ -18,16 +18,29 @@ import torch.optim.lr_scheduler as lrs
 import torch.optim as optim
 import segmentation_models_pytorch as smp
 
+# palette = {
+#     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
+#     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
+#     2 : (0, 255, 197),      # Piscina (ciano)
+#     3 : (0, 0, 0),          # Sombra (preto)
+#     4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
+#     5 : (251, 246, 93),     # Agricultura (amarelo)
+#     6 : (255, 85, 0),       # Formação Rochosa (laranja)
+#     7 : (127, 142, 127),    # Solo Exposto (cinza escuro)
+#     8 : (84, 117, 168),     # Água (azul escuro)
+# }
+
 palette = {
     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
     2 : (0, 255, 197),      # Piscina (ciano)
     3 : (0, 0, 0),          # Sombra (preto)
     4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
-    5 : (251, 246, 93),     # Agricultura (amarelo)
+    5 : (255, 255, 0),      # Agricultura (amarelo)
     6 : (255, 85, 0),       # Formação Rochosa (laranja)
-    7 : (127, 142, 127),    # Solo Exposto (cinza escuro)
+    7 : (52, 52, 52),       # Solo Exposto (cinza escuro)
     8 : (84, 117, 168),     # Água (azul escuro)
+    9 : (102, 255, 102)     # Vegetação Rasteira (verde claro)
 }
 
 invert_palette = {v: k for k, v in palette.items()}
