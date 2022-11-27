@@ -32,7 +32,7 @@ if __name__=='__main__':
         'root_dir': '/home/fabricio/Downloads/dataset',
         'window_size': (256, 256),
         'cache': True,
-        'bs': 8,
+        'bs': 6,
         'n_classes': 10,
         'classes': ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua", "Vegetacao Rasteira"],
         'cpu': None,
@@ -55,10 +55,10 @@ if __name__=='__main__':
         'print_each': 100,
     }
     
-    # params['weights'] = torch.ones(params['n_classes'])
-    loss_weights = load_loss_weights('./extra/loss_weights.npy')
-    if loss_weights is not None:
-        params['weights'] = torch.from_numpy(loss_weights['weights_norm']).float()
+    params['weights'] = torch.ones(params['n_classes'])
+    # loss_weights = load_loss_weights('./extra/loss_weights.npy')
+    # if loss_weights is not None:
+    #     params['weights'] = torch.from_numpy(loss_weights['weights_norm']).float()
     
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
@@ -119,7 +119,7 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp=None#'/home/fabricio/Projetos/icmbio/segnet_final_50.pth.tar'
+    cbkp=None#'segnet256_epoch_50.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)

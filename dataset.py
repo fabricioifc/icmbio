@@ -81,7 +81,8 @@ class DatasetIcmbio(torch.utils.data.Dataset):
         if random_idx in self.label_cache_.keys():
             label = self.label_cache_[random_idx]
         else: 
-            image_label = io.imread(self.label_files[random_idx], )[:,:,:3]
+            # image_label = io.imread(self.label_files[random_idx], )[:,:,:3]
+            image_label = io.imread(self.label_files[random_idx], )
             # Labels are converted from RGB to their numeric values
             label = np.asarray(convert_from_color(image_label), dtype='int64')
             if self.cache:
