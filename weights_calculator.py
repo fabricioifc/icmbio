@@ -1,53 +1,57 @@
 import os
-import glob
+# import glob
 from skimage import io
-from utils import convert_from_color
 import numpy as np
 import pandas as pd
-from utils import save_loss_weights
+from utils import convert_from_color, convert_to_color, save_loss_weights
 
-EXT = 'tif'
-DEV = 3
+# EXT = 'tif'
+DEV = 10
 
 class WeightsCalculator():
     
-    def __init__(self, label_dir: str, classes: list, dev=False, filename = 'loss_weights'):
-        self.label_dir = label_dir
+    def __init__(self, train_labels: str, classes: list, dev=False, filename = 'loss_weights'):
+        self.train_labels = train_labels
         self.classes = classes
         self.filename = f'{filename}_dev' if dev else filename
         self.C = len(classes) # quantidade de classes
         self.N = None # Pixels por classe
         self.M = None # Soma dos pixels de todas as imagens
         
-        assert os.path.exists(label_dir), "{}. Diretório não existe".format(label_dir)
-        
-        image_list = glob.glob(f"{label_dir}/*.{EXT}")
+        # assert os.path.exists(label_dir), "{}. Diretório não existe".format(label_dir)
+        # image_list = glob.glob(f"{label_dir}/*.{EXT}")
 
-        print(f'--- Carregando as {len(image_list)} imagens ---')
+        print(f'--- Carregando as {len(train_labels)} imagens ---')
         if dev:
-            self.images = [io.imread(file) for file in image_list[0:DEV]]
+            self.images = [io.imread(file) for file in train_labels[0:DEV]]
         else:
-            self.images = [io.imread(file) for file in image_list]
+            self.images = [io.imread(file) for file in train_labels]
         
         self.load()
         
     '''Calcular os pixels por classe de todas as imagens e os pixels totais'''
     def load(self) -> None:
         print(f'--- Convertendo imagem para Paleta de Cores ---')
-        image_color = [convert_from_color(image[:,:,:3]) for image in self.images]
-        
+        image_color = [convert_from_color(image) for image in self.images]  
+
         pixels_by_image_class = []
         for idx, image in enumerate(image_color):
             print(f'--- Somando pixels da imagem {idx+1}/{len(image_color)} ---')
             gen = ([image.ravel() == i for i in np.arange(self.C)])
             pixels_by_image_class.append(np.sum(list(gen), axis=1))
             
-        self.N = np.sum(pixels_by_image_class, axis=0)
+        self.N = np.sum(pixels_by_image_class, axis=0, dtype=np.int64)
         self.M = np.sum(pixels_by_image_class)
+        df = pd.DataFrame(data=pixels_by_image_class)
+        df.to_csv('pesos.csv', encoding='utf-8', sep=';', decimal=',')
         
     def calculate_and_save(self, normalize=True) -> list:
-        prod = np.array([self.C*n for n in self.N])
-        weights = np.divide(self.M, prod, where=prod!=0)
+        prod = np.array([self.C*n for n in self.N], dtype=np.int64)
+        # weights = np.divide(self.M, prod, where=prod!=0)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            weights = np.true_divide(self.M, prod)
+            weights[weights == np.inf] = 0
+            weights = np.nan_to_num(weights)
         if normalize:
             weights_norm = weights / weights.sum()
             # weights_norm = np.divide(weights, np.linalg.norm(weights))
@@ -80,9 +84,13 @@ class WeightsCalculator():
   
         
 if __name__=='__main__':
+
+    label_dir = os.path.join('D:\\datasets\\ICMBIO_NOVO\\all', 'label')
+    train_labels = pd.read_table('train_labels.txt',header=None).values
+    train_labels = [os.path.join(label_dir, f[0]) for f in train_labels]
     
     wc= WeightsCalculator(
-        label_dir='D:\\datasets\\ICMBIO\\all\\label',
+        train_labels=train_labels,
         classes=["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         dev=False,
         filename='loss_weights'

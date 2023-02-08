@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 from utils import clear, convert_to_color, make_optimizer, seed_everything, visualize_augmentations
 from sklearn.model_selection import train_test_split
 
-import segmentation_models_pytorch as smp
-from segmentation_models_pytorch.encoders import get_preprocessing_fn
-from segmentation_models_pytorch.utils.train import TrainEpoch, ValidEpoch
+# import segmentation_models_pytorch as smp
+# from segmentation_models_pytorch.encoders import get_preprocessing_fn
+# from segmentation_models_pytorch.utils.train import TrainEpoch, ValidEpoch
 
 
 def is_save_epoch(epoch, ignore_epoch=0):
@@ -27,7 +27,7 @@ if __name__=='__main__':
     
     # Params
     params = {
-        'root_dir': 'D:\\datasets\\ICMBIO\\all',
+        'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all',
         'window_size': (256, 256),
         'cache': True,
         'bs': 8,
@@ -53,7 +53,7 @@ if __name__=='__main__':
         'print_each': 100,
     }
     
-    # params['weights'] = torch.ones(params['n_classes'])
+    params['weights'] = torch.ones(params['n_classes'])
     loss_weights = load_loss_weights('./loss_weights.npy')
     if loss_weights is not None:
         params['weights'] = torch.from_numpy(loss_weights['weights_norm']).float()
@@ -85,12 +85,12 @@ if __name__=='__main__':
     # train_labels, val_labels = train_labels.tolist(), val_labels.tolist()
     
     # Create train and test sets
-    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'])
-    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'],augmentation=False)
+    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
+    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
 
     # # Load dataset classes in pytorch dataloader handler object
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], num_workers=0, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = params['bs'], num_workers=0, shuffle=False)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=False)
     
     # visualize_augmentations(train_dataset)
     
@@ -117,13 +117,13 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp=None#'D:\\Projetos\\icmbio\\tmp\\20221122_cross_entropy\\segnet_final_100.pth.tar'
+    cbkp=None#'segnet_final_100.pth.tar' #'D:\\Projetos\\icmbio\\tmp\\20221122_cross_entropy\\segnet_final_100.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
     clear()
     
-    for epoch in range(trainer.last_epoch + 1, params['maximum_epochs']):
+    for epoch in range(trainer.last_epoch+1, params['maximum_epochs']):
         trainer.train()
         
         if is_save_epoch(epoch, ignore_epoch=params['maximum_epochs']):
@@ -131,7 +131,7 @@ if __name__=='__main__':
             trainer.save('./segnet256_epoch_{}.pth.tar'.format(epoch))
             
     trainer.save('./segnet_final_{}.pth.tar'.format(params['maximum_epochs']))
-    acc, all_preds, all_gts = trainer.test(all=True, stride=32)
+    acc, all_preds, all_gts = trainer.test(all=True, stride=min(params['window_size']))
     print(f'Global Accuracy: {acc}')
     
     input_ids, label_ids = test_loader.dataset.get_dataset()

@@ -35,7 +35,6 @@ class DatasetIcmbio(torch.utils.data.Dataset):
     
     def __len__(self):
         # Default epoch size is 10 000 samples
-        # return 10000
         return 10000
 
     # Return data_files and label_files

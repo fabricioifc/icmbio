@@ -16,7 +16,7 @@ from os import system, name
 import torch.nn.functional as F
 import torch.optim.lr_scheduler as lrs
 import torch.optim as optim
-import segmentation_models_pytorch as smp
+# import segmentation_models_pytorch as smp
 
 palette = {
     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
@@ -24,9 +24,9 @@ palette = {
     2 : (0, 255, 197),      # Piscina (ciano)
     3 : (0, 0, 0),          # Sombra (preto)
     4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
-    5 : (251, 246, 93),     # Agricultura (amarelo)
+    5 : (255, 255, 0),      # Agricultura (amarelo)
     6 : (255, 85, 0),       # Formação Rochosa (laranja)
-    7 : (127, 142, 127),    # Solo Exposto (cinza escuro)
+    7 : (115, 76, 0),       # Solo Exposto (marrom)
     8 : (84, 117, 168),     # Água (azul escuro)
 }
 

@@ -11,7 +11,7 @@ from skimage import io
 from tqdm import tqdm_notebook as tqdm
 
 from utils import clear, count_sliding_window, make_optimizer, make_scheduler, CrossEntropy2d, accuracy, metrics, save_test, sliding_window, grouper, convert_from_color, convert_to_color, global_accuracy
-from segmentation_models_pytorch.losses import DiceLoss
+# from segmentation_models_pytorch.losses import DiceLoss
 from focal_loss import FocalLoss
 # from recal_loss import RecallLoss
 
@@ -211,7 +211,8 @@ class Trainer():
 
     def train(self):
         running_loss = 0.0
-        self.last_epoch = self.scheduler.last_epoch if self.scheduler is not None else self.last_epoch + 1
+        # self.last_epoch = self.scheduler.last_epoch if self.scheduler is not None else self.last_epoch + 1
+        self.last_epoch = self.scheduler.last_epoch + 1
         # self.optimizer.step()
         
         # if self.scheduler is not None:
@@ -239,7 +240,7 @@ class Trainer():
             
             clear()
             print('Training (epoch {}/{}) [{}/{} ({:.0f}%)]\tIteração {}\tLoss: {:.4f}'.format(
-                    self.last_epoch + 1, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
+                    self.last_epoch, self.params['maximum_epochs'], batch_id, len(self.loader['train']),
                     100. * batch_id / len(self.loader['train']), self.iter_, loss.item()
                 )
             )
@@ -276,7 +277,7 @@ class Trainer():
         
         if self.scheduler is not None:
             self.scheduler.step()
-            
+
         self.epoch_loss.append(running_loss/len(self.loader['train']))
         
         fig = plt.figure()
