@@ -117,7 +117,7 @@ if __name__=='__main__':
     # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
     # model.load_state_dict(checkpoint)
     
-    cbkp=None#'segnet_final_100.pth.tar' #'D:\\Projetos\\icmbio\\tmp\\20221122_cross_entropy\\segnet_final_100.pth.tar'
+    cbkp=None#'segnet256_epoch_70.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)

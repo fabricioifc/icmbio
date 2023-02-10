@@ -1,3 +1,6 @@
+import sys
+sys.path.append('D:\\Projetos\\icmbio\\')
+
 import os
 # import glob
 from skimage import io
