@@ -105,8 +105,8 @@ class TestTrained:
     #         io.imsave(os.path.join(RESULTS_PATH, f'inference_tile_{id_}.png'), img)
 
 if __name__ == '__main__':
-    classes = ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
-    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230209_cross_entropy_100_epoch_weights_calc\\segnet256_test_result.npz'
+    classes = ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
+    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230208_cross_entropy_100_epoch_weights_1\\segnet256_test_result.npz'
     
 
     TestTrained(test_result_path, classes).run()

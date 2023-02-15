@@ -18,16 +18,27 @@ import torch.optim.lr_scheduler as lrs
 import torch.optim as optim
 # import segmentation_models_pytorch as smp
 
+# palette = {
+#     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
+#     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
+#     2 : (0, 255, 197),      # Piscina (ciano)
+#     3 : (0, 0, 0),          # Sombra (preto)
+#     4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
+#     5 : (255, 255, 0),      # Agricultura (amarelo)
+#     6 : (255, 85, 0),       # Formação Rochosa (laranja)
+#     7 : (115, 76, 0),       # Solo Exposto (marrom)
+#     8 : (84, 117, 168),     # Água (azul escuro)
+# }
 palette = {
     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
-    2 : (0, 255, 197),      # Piscina (ciano)
-    3 : (0, 0, 0),          # Sombra (preto)
-    4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
-    5 : (255, 255, 0),      # Agricultura (amarelo)
-    6 : (255, 85, 0),       # Formação Rochosa (laranja)
-    7 : (115, 76, 0),       # Solo Exposto (marrom)
-    8 : (84, 117, 168),     # Água (azul escuro)
+    # 2 : (0, 255, 197),      # Piscina (ciano)
+    2 : (0, 0, 0),          # Sombra (preto)
+    3 : (133, 199, 126),    # Floresta Regeneração (verde claro)
+    4 : (255, 255, 0),      # Agricultura (amarelo)
+    5 : (255, 85, 0),       # Formação Rochosa (laranja)
+    6 : (115, 76, 0),       # Solo Exposto (marrom)
+    7 : (84, 117, 168),     # Água (azul escuro)
 }
 
 invert_palette = {v: k for k, v in palette.items()}
@@ -55,7 +66,8 @@ def convert_from_color(arr_3d, palette=invert_palette):
 def get_random_pos(img, window_shape):
     """ Extract of 2D random patch of shape window_shape in the image """
     w, h = window_shape
-    W, H = img.shape[-2:]
+    # W, H = img.shape[-2:]
+    W, H = img.shape[:-1] # CHANGED
     x1 = random.randint(0, W - w - 1)
     x2 = x1 + w
     y1 = random.randint(0, H - h - 1)
@@ -338,6 +350,28 @@ def plot_confusion_matrix_local(cm,
         fig.savefig(f"./tmp/cm", dpi=fig.dpi, bbox_inches='tight')
     else:
         plt.show()
+
+def batch_mean_and_sd(loader):
+    
+    cnt = 0
+    fst_moment = torch.empty(3)
+    snd_moment = torch.empty(3)
+
+    for images, _ in loader:
+        b, c, h, w = images.shape
+        nb_pixels = b * h * w
+        sum_ = torch.sum(images, dim=[0, 2, 3])
+        sum_of_square = torch.sum(images ** 2,
+                                  dim=[0, 2, 3])
+        fst_moment = (cnt * fst_moment + sum_) / (
+                      cnt + nb_pixels)
+        snd_moment = (cnt * snd_moment + sum_of_square) / (
+                            cnt + nb_pixels)
+        cnt += nb_pixels
+
+    mean, std = fst_moment, torch.sqrt(
+      snd_moment - fst_moment ** 2)        
+    return mean, std
 
 def save_test(acc, all_preds, all_gts, path=None):
     try:

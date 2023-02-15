@@ -94,7 +94,7 @@ if __name__=='__main__':
     
     wc= WeightsCalculator(
         train_labels=train_labels,
-        classes=["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
+        classes=["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         dev=False,
         filename='loss_weights'
     )

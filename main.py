@@ -4,16 +4,20 @@ import torch
 import numpy as np
 import pandas as pd
 from glob import glob
-from utils import load_loss_weights
+from utils import load_loss_weights, batch_mean_and_sd
 
 from dataset import DatasetIcmbio
 from trainer import Trainer
+from trainer_segformer import TrainerSegformer
 from models import SegNet, SegNet_two_pools_test
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import matplotlib.pyplot as plt
 from utils import clear, convert_to_color, make_optimizer, seed_everything, visualize_augmentations
 from sklearn.model_selection import train_test_split
+from transformers import SegformerForSemanticSegmentation
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 # import segmentation_models_pytorch as smp
 # from segmentation_models_pytorch.encoders import get_preprocessing_fn
@@ -31,8 +35,8 @@ if __name__=='__main__':
         'window_size': (256, 256),
         'cache': True,
         'bs': 8,
-        'n_classes': 9,
-        'classes': ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
+        'n_classes': 8,
+        'classes': ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         'cpu': None,
         'device': 'cuda',
         'precision' : 'full',
@@ -49,15 +53,15 @@ if __name__=='__main__':
         },
         'weights': '',
         'maximum_epochs': 100,
-        'save_epoch': 10,
-        'print_each': 100,
+        'save_epoch': 5,
+        'print_each': 500,
     }
     
     params['weights'] = torch.ones(params['n_classes'])
     loss_weights = load_loss_weights('./loss_weights.npy')
     if loss_weights is not None:
-        params['weights'] = torch.from_numpy(loss_weights['weights_norm']).float()
-    
+        params['weights'] = torch.from_numpy(loss_weights['weights']).float()
+
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
 
@@ -84,41 +88,66 @@ if __name__=='__main__':
     # train_images, val_images = train_images.tolist(), val_images.tolist()
     # train_labels, val_labels = train_labels.tolist(), val_labels.tolist()
     
+    train_transform = A.Compose([
+        A.VerticalFlip(p=0.5),
+        A.HorizontalFlip(p=0.5),
+        # A.RandomRotate90(p=1),
+        # A.RandomBrightnessContrast(p=0.2),
+        # A.HueSaturationValue(hue_shift_limit=20, sat_shift_limit=50, val_shift_limit=50, p=1),
+        # A.ChannelShuffle(p=1),
+        # A.ColorJitter(brightness=0,contrast=(1,5),saturation=0,hue=0),
+        # A.RGBShift(r_shift_limit=(0,255),g_shift_limit=(-40,40),b_shift_limit=(-30,30),p=0.5)
+        # A.Normalize(
+        #     mean=[0.5, 0.5, 0.5],
+        #     std=[0.5, 0.5, 0.5],
+        # ),
+        ToTensorV2()
+    ])
+
     # Create train and test sets
-    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
-    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
+    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], transform=train_transform)
+    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'])
 
     # # Load dataset classes in pytorch dataloader handler object
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=False)
-    
-    # visualize_augmentations(train_dataset)
+
+    # mean, std = batch_mean_and_sd(train_loader)
     
     # # Load network model in cuda (gpu)
     # model = SegNet(in_channels = 3, out_channels = params['n_classes'])
-    model = SegNet_two_pools_test(in_channels = 3, out_channels = params['n_classes'], pretrained = True, pool_type = 'dwt')
-    model.cuda()
-    
-    # model = smp.UnetPlusPlus(
-    #     encoder_name=params['model']['encoder'],
-    #     encoder_weights=params['model']['encoder_weights'],
-    #     in_channels=3,
-    #     classes=params['n_classes'],
-    #     activation=params['model']['activation']
+    # model = SegNet_two_pools_test(in_channels = 3, out_channels = params['n_classes'], pretrained = True, pool_type = 'dwt')
+    # model.cuda()
+
+    df = pd.read_csv('classes.csv')
+    classes = df['name']
+    palette = df[[' r', ' g', ' b']].values
+    id2label = classes.to_dict()
+    label2id = {v: k for k, v in id2label.items()}
+    num_labels=len(label2id)
+    params['id2label'] = id2label
+    params['palette'] = palette
+
+    # model = SegformerForSemanticSegmentation.from_pretrained(
+    #     'nvidia/segformer-b0-finetuned-ade-512-512',
+    #     num_labels=params['n_classes'],
+    #     id2label=id2label,
+    #     label2id=label2id,
+    #     ignore_mismatched_sizes=True,
     # )
-    
-    # preprocess_input = get_preprocessing_fn('resnet18', pretrained='imagenet')
+    # model.cuda()
+    model = SegformerForSemanticSegmentation.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512", ignore_mismatched_sizes=True,
+            num_labels=len(id2label), id2label=id2label, label2id=label2id,
+            reshape_last_stage=True)
+    model.to(params['device'])
 
     loader = {
         "train": train_loader,
         "test": test_loader,
     }
     
-    # checkpoint = torch.load('D:/Projetos/aerialseg_kaggle/results/20221010/segnet256_epoch140_88.16359915384432')
-    # model.load_state_dict(checkpoint)
-    
-    cbkp=None#'segnet256_epoch_70.pth.tar'
-    trainer = Trainer(model, loader, params, cbkp=cbkp)
+    cbkp=None
+    trainer = TrainerSegformer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
     clear()
@@ -131,7 +160,8 @@ if __name__=='__main__':
             trainer.save('./segnet256_epoch_{}.pth.tar'.format(epoch))
             
     trainer.save('./segnet_final_{}.pth.tar'.format(params['maximum_epochs']))
-    acc, all_preds, all_gts = trainer.test(all=True, stride=min(params['window_size']))
+    # acc, all_preds, all_gts = trainer.test(all=True, stride=min(params['window_size']))
+    acc, all_preds, all_gts = trainer.test(all=True, stride=32)
     print(f'Global Accuracy: {acc}')
     
     input_ids, label_ids = test_loader.dataset.get_dataset()
