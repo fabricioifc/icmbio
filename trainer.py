@@ -321,7 +321,6 @@ class Trainer():
         
         fig = plt.figure()
         plt.plot(np.linspace(1, len(self.epoch_loss), len(self.epoch_loss)).astype(int), self.epoch_loss, '-o')
-        plt.plot(self.mean_losses[:self.iter_])
         plt.xlabel('epoch')
         plt.ylabel('loss')
         plt.title('Train Loss/Epoch')

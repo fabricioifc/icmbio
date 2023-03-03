@@ -34,7 +34,7 @@ if __name__=='__main__':
         'device': 'cuda',
         'precision' : 'full',
         'model': {
-            'name': 'segnet_modificada',
+            'name': 'segnet',
             'pretrained': True
         },
         'optimizer_params': {

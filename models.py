@@ -2311,6 +2311,14 @@ def build_model(model_name: str, params: list):
     elif model_name == 'segnet_modificada':
         # model = SegNet(in_channels = 3, out_channels = params['n_classes'])
         model = SegNet_two_pools_test(in_channels = 3, out_channels = params['n_classes'], pretrained = True, pool_type = 'dwt')
+    elif model_name == 'deeplabv3':
+        model = smp.DeepLabV3Plus(
+            encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=params['n_classes'],        # model output channels (number of classes in your dataset)
+            activation=None,
+        )
     else:
         raise Exception("{} -> invalid model name.".format(model_name))
     
