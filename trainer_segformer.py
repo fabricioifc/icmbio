@@ -185,6 +185,7 @@ class TrainerSegformer():
                     plt.imshow(gt)
                     # plt.show()
                     fig.savefig(f"./tmp/test_progress", dpi=fig.dpi, bbox_inches='tight')
+                    plt.clf()
                         
                 # Build the tensor (ex: 2048px/256px = 8 patches de 256x256)
                 with torch.no_grad():
@@ -224,6 +225,7 @@ class TrainerSegformer():
             plt.imshow(gt)
             # plt.show()
             fig.savefig(f"./tmp/{filepath}/result", dpi=fig.dpi, bbox_inches='tight')
+            plt.clf()
 
             all_preds.append(pred)
             all_gts.append(gt_e)
@@ -331,6 +333,7 @@ class TrainerSegformer():
                 fig = plt.figure()
                 plt.plot(self.mean_losses[:self.iter_]) #and plt.show()
                 fig.savefig(f"./tmp/train_mean_loss", dpi=fig.dpi, bbox_inches='tight')
+                plt.clf()
                 
                 fig = plt.figure()
                 ax1 = fig.add_subplot(141)
@@ -347,6 +350,7 @@ class TrainerSegformer():
                 plt.imshow(image_mask)
                 # plt.show()
                 fig.savefig(f"./tmp/train_progress", dpi=fig.dpi, bbox_inches='tight')
+                plt.clf()
                 
             self.iter_ += 1
             del(inputs, labels, loss)

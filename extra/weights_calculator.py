@@ -85,7 +85,7 @@ class WeightsCalculator():
     def __formatDecimal(self, arr, decimals=4):
         return np.around(arr, decimals=decimals)
   
-        
+# Função para calcular o peso de cada classe em um conjunto de imagens (labels)        
 if __name__=='__main__':
 
     label_dir = os.path.join('D:\\datasets\\ICMBIO_NOVO\\all', 'label')

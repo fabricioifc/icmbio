@@ -3,6 +3,7 @@ sys.path.append('D:\\Projetos\\icmbio\\')
 import matplotlib
 matplotlib._log.disabled = True
 
+import pandas as pd
 import logging, os, io
 from pathlib import Path
 from torchmetrics import ConfusionMatrix
@@ -34,22 +35,22 @@ class TestTrained:
         self.test = np.load(test_result_path, allow_pickle=True)
         self.classes = classes
         Path(RESULTS_PATH).mkdir(parents=True, exist_ok=True)
-    
-    def run(self):
+        
         logging.info('\n\n--- Iniciando o teste para gerar relatórios ---')
         logging.info(f'--- {test_result_path} ---')
 
-        acc = self.test.f.arr_0.item().get('acc')
-        logging.info(f'--- Accuracy: {acc} ---')
-
-        logging.info(f'--- Carregando o arquivo com as previsões e ground truths ---')
-        y_pred = self.test.f.arr_0.item().get('all_preds')
-        y_true = self.test.f.arr_0.item().get('all_gts')
-
+        print(f'--- Carregando o arquivo com as previsões e ground truths ---')
+        self.y_pred = self.test.f.arr_0.item().get('all_preds')
+        self.y_true = self.test.f.arr_0.item().get('all_gts')
+        
+        self.acc = self.test.f.arr_0.item().get('acc')
+        logging.info(f'--- Accuracy: {self.acc} ---')
+    
+    def run(self):
         logging.info(f'--- Geranco a Matriz de Confusão ---')
         cm = confusion_matrix(
-            np.concatenate([p.ravel() for p in y_true]),
-            np.concatenate([p.ravel() for p in y_pred]),
+            np.concatenate([p.ravel() for p in self.y_true]),
+            np.concatenate([p.ravel() for p in self.y_pred]),
             labels=range(len(self.classes)),
         )
         
@@ -73,10 +74,11 @@ class TestTrained:
         # plt.show()
         logging.info(f'--- Exportando Matriz de Confusão ---')
         fig.savefig(f"{RESULTS_PATH}/cm_all", dpi=fig.dpi, bbox_inches='tight')
+        plt.close(fig)
 
         logging.info(f'--- Convertendo Array para Tensor ---')
-        y_true_ = torch.from_numpy(np.concatenate([p.ravel() for p in y_true]))
-        y_pred_ = torch.from_numpy(np.concatenate([p.ravel() for p in y_pred]))
+        y_true_ = torch.from_numpy(np.concatenate([p.ravel() for p in self.y_true]))
+        y_pred_ = torch.from_numpy(np.concatenate([p.ravel() for p in self.y_pred]))
 
         accuracy = Accuracy(task="multiclass", num_classes=len(self.classes))
         # DOC: IOU = true_positive / (true_positive + false_positive + false_negative)
@@ -91,41 +93,22 @@ class TestTrained:
         report = metrics.classification_report(y_true_, y_pred_, target_names=self.classes)
         logging.info(f'--- Relatório ---\n{report}\n')
 
-        
-    # def run_test(self):
-    #     acc, all_preds, all_gts = self.trainer.test(all=True, stride=self.stride)
-    #     print(f'Global Accuracy: {acc}')
-        
-    #     input_ids, label_ids = self.trainer.loader.dataset.get_dataset()
-    #     all_ids = [os.path.split(f)[1].split('.')[0] for f in input_ids]
-        
-    #     for p, id_ in zip(all_preds, all_ids):
-    #         img = convert_to_color(p)
-    #         # plt.imshow(img) and plt.show()
-    #         io.imsave(os.path.join(RESULTS_PATH, f'inference_tile_{id_}.png'), img)
+    def _report(self, TN, FP, FN, TP):
+        TPR = TP/(TP+FN) if (TP+FN)!=0 else 0
+        TNR = TN/(TN+FP) if (TN+FP)!=0 else 0
+        PPV = TP/(TP+FP) if (TP+FP)!=0 else 0
+        report = {'TP': TP, 'TN': TN, 'FP': FP, 'FN': FN, 
+                'TPR': TPR, 'Recall': TPR, 'Sensitivity': TPR,
+                'TNR' : TNR, 'Specificity': TNR,
+                'FPR': FP/(FP+TN) if (FP+TN)!=0 else 0,
+                'FNR': FN/(FN+TP) if (FN+TP)!=0 else 0,
+                'PPV': PPV, 'Precision': PPV,
+                'F1 Score': 2*(PPV*TPR)/(PPV+TPR)
+                }
+        return report
 
 if __name__ == '__main__':
     classes = ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
-    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230208_cross_entropy_100_epoch_weights_1\\segnet256_test_result.npz'
-    
+    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230302_cross_entropy_100_epoch_weights_unetplusplus\\segnet256_test_result.npz'
 
     TestTrained(test_result_path, classes).run()
-    
-127418
-
-# def __init__(self, trainer: Trainer, stride=None):
-#     self.trainer = trainer
-#     self.stride = stride or min(trainer.params['window_size'])
-#     Path(RESULTS_PATH).mkdir(parents=True, exist_ok=True)
-    
-# def run_test(self):
-#     acc, all_preds, all_gts = self.trainer.test(all=True, stride=self.stride)
-#     print(f'Global Accuracy: {acc}')
-    
-#     input_ids, label_ids = self.trainer.loader.dataset.get_dataset()
-#     all_ids = [os.path.split(f)[1].split('.')[0] for f in input_ids]
-    
-#     for p, id_ in zip(all_preds, all_ids):
-#         img = convert_to_color(p)
-#         # plt.imshow(img) and plt.show()
-#         io.imsave(os.path.join(RESULTS_PATH, f'inference_tile_{id_}.png'), img)

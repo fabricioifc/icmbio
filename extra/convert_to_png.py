@@ -60,6 +60,12 @@ def convert(path, format, remove) -> None:
                 progress.update()
 
 
+# Função criada para converter imagens TIF em JPEG/PNG
+# --path=Diretório com as imagens TIF
+# --format=Formato esperado após a conversão (JPEG ou PNG)
+# --remove=Remover a imagen TIF original
+# --no-remove=Não remover a imagen TIF original
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Recursive TIFF to JPEG converter')
     parser.add_argument('--path', type=str, help='Path do directory with TIFF files')

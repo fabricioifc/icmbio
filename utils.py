@@ -209,6 +209,7 @@ def metrics(predictions, gts, label_values, all=False, filepath=None):
                                     show_normed=True,
                                     class_names=label_values)
     fig.savefig(f"./tmp/cm_all" if all else f'./tmp/{filepath}/cm' , dpi=fig.dpi, bbox_inches='tight')
+    plt.close(fig)
     
     print("Confusion matrix :")
     print(cm)
@@ -348,6 +349,7 @@ def plot_confusion_matrix_local(cm,
     plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
     if save:
         fig.savefig(f"./tmp/cm", dpi=fig.dpi, bbox_inches='tight')
+        plt.close(fig)
     else:
         plt.show()
 
@@ -413,3 +415,23 @@ def seed_everything(seed: int):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
+
+# import torchvision.models as models
+# import torch.nn as nn
+# def build_model_efficientnet_b0(num_classes, pretrained=True, fine_tune=True):
+#     if pretrained:
+#         print('[INFO]: Loading pre-trained weights')
+#     else:
+#         print('[INFO]: Not loading pre-trained weights')
+#     model = models.efficientnet_b0(pretrained=pretrained)
+#     if fine_tune:
+#         print('[INFO]: Fine-tuning all layers...')
+#         for params in model.parameters():
+#             params.requires_grad = True
+#     elif not fine_tune:
+#         print('[INFO]: Freezing hidden layers...')
+#         for params in model.parameters():
+#             params.requires_grad = False
+#     # Change the final classification head.
+#     model.classifier[1] = nn.Linear(in_features=1280, out_features=num_classes)
+#     return model

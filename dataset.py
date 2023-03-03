@@ -7,11 +7,12 @@ import numpy as np
 from skimage import io, img_as_float64
 from utils import convert_from_color, get_random_pos, convert_to_color
 import matplotlib.pyplot as plt
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 EXTS = ['tif', 'tiff', 'jpg', 'png']
 
 # Dataset class
-
 class DatasetIcmbio(torch.utils.data.Dataset):
 
     def __init__(self, data_files, label_files, window_size, n_channels = 3, cache = True, transform=None):
@@ -135,3 +136,4 @@ class DatasetIcmbio(torch.utils.data.Dataset):
             ax[1, 1].set_title('Transformed mask', fontsize=fontsize)
             
             fig.savefig(f"./tmp/dataset", dpi=fig.dpi, bbox_inches='tight')
+            plt.close(fig)
