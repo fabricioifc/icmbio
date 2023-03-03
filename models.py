@@ -1,19 +1,22 @@
 """ Models definitions archictures """
 import os
-import os.path as osp
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from common import DWT, IWT, DWTone
 import common
+import segmentation_models_pytorch as smp
+import os.path as osp
+import numpy as np
+from transformers import SegformerForSemanticSegmentation
+import pandas as pd
+from efficientnet_pytorch import EfficientNet
+from torchinfo import summary
 
 try:
     from urllib.request import URLopener
 except ImportError:
     from urllib import URLopener
-
-
 
 # https://github.com/shelhamer/fcn.berkeleyvision.org/blob/master/surgery.py
 def get_upsampling_weight(in_channels, out_channels, kernel_size):
@@ -962,7 +965,6 @@ class SegNet_two_pools_test(nn.Module):
         x = self.unpool1(x, mask1)
         x = self.conv1_2_D_bn(F.relu(self.conv1_2_D(x)))
         #x = self.conv1_1_D(x)
-        # x = F.log_softmax(self.conv1_1_D(x))
         x = F.log_softmax(self.conv1_1_D(x), dim=1)
         return x
     
@@ -1177,7 +1179,7 @@ class SegNet_two_pools_skip(nn.Module):
         x = torch.cat([x, conv1], dim=1)
         x = self.conv1_2_D_bn(F.relu(self.conv1_2_D(x)))
         #x = self.conv1_1_D(x)
-        # x = F.log_softmax(self.conv1_1_D(x))
+        x = F.log_softmax(self.conv1_1_D(x))
         return x
     
 
@@ -2272,3 +2274,46 @@ class MWCNN(nn.Module):
     def set_scale(self, scale_idx):
         self.scale_idx = scale_idx
 '''
+
+
+def build_model(model_name: str, params: list):
+    if model_name == 'unet':
+        model = smp.Unet(
+            encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=params['n_classes'],        # model output channels (number of classes in your dataset)
+            activation=None,
+        )
+    elif model_name == 'unetplusplus':
+        model = smp.UnetPlusPlus(
+            encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=params['n_classes'],        # model output channels (number of classes in your dataset)
+            activation=None,
+        )
+    elif model_name == 'efficientnet':
+        model = EfficientNet.from_pretrained(model_name='efficientnet-b0', in_channels=3, num_classes=params['n_classes'])
+    elif model_name == 'segformer':
+        df = pd.read_csv('classes.csv')
+        classes = df['name']
+        palette = df[[' r', ' g', ' b']].values
+        id2label = classes.to_dict()
+        label2id = {v: k for k, v in id2label.items()}
+        num_labels=len(label2id)
+        params['id2label'] = id2label
+        params['palette'] = palette
+
+        model = SegformerForSemanticSegmentation.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512", ignore_mismatched_sizes=True,
+                    num_labels=len(id2label), id2label=id2label, label2id=label2id,
+                    reshape_last_stage=True)
+    elif model_name == 'segnet_modificada':
+        # model = SegNet(in_channels = 3, out_channels = params['n_classes'])
+        model = SegNet_two_pools_test(in_channels = 3, out_channels = params['n_classes'], pretrained = True, pool_type = 'dwt')
+    else:
+        raise Exception("{} -> invalid model name.".format(model_name))
+    
+    model.to(params['device'])
+    summary(model, (8,3,256,256))
+    return model

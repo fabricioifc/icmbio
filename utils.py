@@ -16,18 +16,29 @@ from os import system, name
 import torch.nn.functional as F
 import torch.optim.lr_scheduler as lrs
 import torch.optim as optim
-import segmentation_models_pytorch as smp
+# import segmentation_models_pytorch as smp
 
+# palette = {
+#     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
+#     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
+#     2 : (0, 255, 197),      # Piscina (ciano)
+#     3 : (0, 0, 0),          # Sombra (preto)
+#     4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
+#     5 : (255, 255, 0),      # Agricultura (amarelo)
+#     6 : (255, 85, 0),       # Formação Rochosa (laranja)
+#     7 : (115, 76, 0),       # Solo Exposto (marrom)
+#     8 : (84, 117, 168),     # Água (azul escuro)
+# }
 palette = {
     0 : (255, 0, 0),        # Desenvolvimento (vermelho)
     1 : (38, 115, 0),       # Floresta Mata (verde escuro)
-    2 : (0, 255, 197),      # Piscina (ciano)
-    3 : (0, 0, 0),          # Sombra (preto)
-    4 : (133, 199, 126),    # Floresta Regeneração (verde claro)
-    5 : (251, 246, 93),     # Agricultura (amarelo)
-    6 : (255, 85, 0),       # Formação Rochosa (laranja)
-    7 : (127, 142, 127),    # Solo Exposto (cinza escuro)
-    8 : (84, 117, 168),     # Água (azul escuro)
+    # 2 : (0, 255, 197),      # Piscina (ciano)
+    2 : (0, 0, 0),          # Sombra (preto)
+    3 : (133, 199, 126),    # Floresta Regeneração (verde claro)
+    4 : (255, 255, 0),      # Agricultura (amarelo)
+    5 : (255, 85, 0),       # Formação Rochosa (laranja)
+    6 : (115, 76, 0),       # Solo Exposto (marrom)
+    7 : (84, 117, 168),     # Água (azul escuro)
 }
 
 invert_palette = {v: k for k, v in palette.items()}
@@ -55,24 +66,25 @@ def convert_from_color(arr_3d, palette=invert_palette):
 def get_random_pos(img, window_shape):
     """ Extract of 2D random patch of shape window_shape in the image """
     w, h = window_shape
-    W, H = img.shape[-2:]
+    # W, H = img.shape[-2:]
+    W, H = img.shape[:-1] # CHANGED
     x1 = random.randint(0, W - w - 1)
     x2 = x1 + w
     y1 = random.randint(0, H - h - 1)
     y2 = y1 + h
     return x1, x2, y1, y2
 
-def CrossEntropy2d(input, target, weight=None, size_average=True):
+def CrossEntropy2d(input, target, weight=None, reduction='mean'):
     """ 2D version of the cross entropy loss """
     dim = input.dim()
     if dim == 2:
-        return F.cross_entropy(input, target, weight, size_average)
+        return F.cross_entropy(input, target, weight, reduction=reduction)
     elif dim == 4:
         output = input.view(input.size(0),input.size(1), -1)
         output = torch.transpose(output,1,2).contiguous()
         output = output.view(-1,output.size(2))
         target = target.view(-1)
-        return F.cross_entropy(output, target,weight, size_average)
+        return F.cross_entropy(output, target,weight, reduction=reduction)
     else:
         raise ValueError('Expected 2 or 4 dimensions (got {})'.format(dim))
 
@@ -151,39 +163,6 @@ def make_scheduler(args, optimizer):
     return scheduler
 
 
-
-""" 2D version of the cross entropy loss """
-# def CrossEntropy2d(input, target, weight=None, size_average=True):
-#     dim = input.dim()
-#     if dim == 2:
-#         return F.cross_entropy(input, target, weight, size_average)
-#     elif dim == 4:
-#         output = input.view(input.size(0), input.size(1), -1)
-#         output = torch.transpose(output, 1, 2).contiguous()
-#         output = output.view(-1, output.size(2))
-#         target = target.view(-1)
-#         return F.cross_entropy(output, target, weight, size_average)
-#     else:
-#         raise ValueError('Expected 2 or 4 dimensions (got {})'.format(dim))
-
-
-
-# """ Acurracy metric formulation """
-# def accuracy(input, target):
-#     return 100 * float(np.count_nonzero(input == target)) / target.size
-
-
-
-""" Browse an iterator by chunk of n elements """
-# def grouper(n, iterable):
-#     it = iter(iterable)
-#     while True:
-#         chunk = tuple(itertools.islice(it, n))
-#         if not chunk:
-#             return
-#         yield chunk
-
-
 def calculate_cm(predictions, labels, label_values = None, normalize = None):
     return confusion_matrix(labels, predictions, labels=label_values, normalize=normalize)
 
@@ -230,6 +209,7 @@ def metrics(predictions, gts, label_values, all=False, filepath=None):
                                     show_normed=True,
                                     class_names=label_values)
     fig.savefig(f"./tmp/cm_all" if all else f'./tmp/{filepath}/cm' , dpi=fig.dpi, bbox_inches='tight')
+    plt.close(fig)
     
     print("Confusion matrix :")
     print(cm)
@@ -369,14 +349,37 @@ def plot_confusion_matrix_local(cm,
     plt.xlabel('Predicted label\naccuracy={:0.4f}; misclass={:0.4f}'.format(accuracy, misclass))
     if save:
         fig.savefig(f"./tmp/cm", dpi=fig.dpi, bbox_inches='tight')
+        plt.close(fig)
     else:
         plt.show()
+
+def batch_mean_and_sd(loader):
+    
+    cnt = 0
+    fst_moment = torch.empty(3)
+    snd_moment = torch.empty(3)
+
+    for images, _ in loader:
+        b, c, h, w = images.shape
+        nb_pixels = b * h * w
+        sum_ = torch.sum(images, dim=[0, 2, 3])
+        sum_of_square = torch.sum(images ** 2,
+                                  dim=[0, 2, 3])
+        fst_moment = (cnt * fst_moment + sum_) / (
+                      cnt + nb_pixels)
+        snd_moment = (cnt * snd_moment + sum_of_square) / (
+                            cnt + nb_pixels)
+        cnt += nb_pixels
+
+    mean, std = fst_moment, torch.sqrt(
+      snd_moment - fst_moment ** 2)        
+    return mean, std
 
 def save_test(acc, all_preds, all_gts, path=None):
     try:
         print('************** save test results **************')
         if path is None:
-            path = './segnet256_test_result'
+            path = './segnet256_test_result.npz'
             
         np.savez_compressed(path, {
             'acc': acc,
@@ -392,8 +395,18 @@ def load_test(path=None):
     
     data = np.load(path, allow_pickle=True)
     return data.item()
-    
+
+def save_loss_weights(data, path=None):
+    if path is None:
+        path = './loss_weights.npy'
+    np.save(path, data)
         
+def load_loss_weights(path=None):
+    if path is None:
+        path = './loss_weights.npy'
+    x = np.load(path, allow_pickle=True)
+    return x.item()
+
 def seed_everything(seed: int):    
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
@@ -402,3 +415,23 @@ def seed_everything(seed: int):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
+
+# import torchvision.models as models
+# import torch.nn as nn
+# def build_model_efficientnet_b0(num_classes, pretrained=True, fine_tune=True):
+#     if pretrained:
+#         print('[INFO]: Loading pre-trained weights')
+#     else:
+#         print('[INFO]: Not loading pre-trained weights')
+#     model = models.efficientnet_b0(pretrained=pretrained)
+#     if fine_tune:
+#         print('[INFO]: Fine-tuning all layers...')
+#         for params in model.parameters():
+#             params.requires_grad = True
+#     elif not fine_tune:
+#         print('[INFO]: Freezing hidden layers...')
+#         for params in model.parameters():
+#             params.requires_grad = False
+#     # Change the final classification head.
+#     model.classifier[1] = nn.Linear(in_features=1280, out_features=num_classes)
+#     return model

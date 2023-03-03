@@ -1,3 +1,6 @@
 **/tmp
+**/results
 vgg16*
 segnet*
+__pycache__/
+.vscode
