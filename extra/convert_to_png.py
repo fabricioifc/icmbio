@@ -52,8 +52,7 @@ def convert(path, format, remove) -> None:
                         im.save(outfile, "JPEG", quality=80)
                     
                     if remove:
-                        print('image removed')
-                        # os.unlink(file_path)
+                        os.unlink(file_path)
                 except Exception as e:
                     print(e)
 
