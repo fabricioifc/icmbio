@@ -34,7 +34,7 @@ if __name__=='__main__':
         'device': 'cuda',
         'precision' : 'full',
         'model': {
-            'name': 'deeplabv3',
+            'name': 'unet',
             'pretrained': True
         },
         'optimizer_params': {
