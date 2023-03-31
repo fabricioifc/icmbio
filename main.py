@@ -23,18 +23,18 @@ if __name__=='__main__':
     
     # Params
     params = {
-        'results_folder': 'tmp\\20230303_cross_entropy_100_epoch_weights_segnet',
+        'results_folder': 'tmp\\20230303_cross_entropy_100_epoch_weights_deeplabv3',
         'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all',
         'window_size': (256, 256),
         'cache': True,
-        'bs': 8,
+        'bs': 16,
         'n_classes': 8,
         'classes': ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         'cpu': None,
         'device': 'cuda',
         'precision' : 'full',
         'model': {
-            'name': 'segnet',
+            'name': 'deeplabv3',
             'pretrained': True
         },
         'optimizer_params': {

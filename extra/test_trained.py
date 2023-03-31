@@ -109,6 +109,6 @@ class TestTrained:
 
 if __name__ == '__main__':
     classes = ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
-    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230302_cross_entropy_100_epoch_weights_unetplusplus\\segnet256_test_result.npz'
+    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230303_cross_entropy_100_epoch_weights_deeplabv3\\segnet256_test_result.npz'
 
     TestTrained(test_result_path, classes).run()

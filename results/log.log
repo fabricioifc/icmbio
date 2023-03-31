@@ -332,3 +332,31 @@ weighted avg       0.86      0.86      0.85 176160768
 weighted avg       0.84      0.80      0.80 176160768
 
 
+2023-03-03 18:09:04,307 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-03-03 18:09:04,307 - root - INFO - --- D:\Projetos\icmbio\tmp\20230303_cross_entropy_100_epoch_weights_deeplabv3\segnet256_test_result.npz ---
+2023-03-03 18:09:17,371 - root - INFO - --- Accuracy: 84.40035808654058 ---
+2023-03-03 18:09:17,371 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-03-03 18:09:31,198 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-03-03 18:09:32,329 - root - INFO - --- Convertendo Array para Tensor ---
+2023-03-03 18:10:34,433 - root - INFO - --- Accuracy: 0.8440035581588745	 IoU: 0.6884719133377075 ---
+2023-03-03 18:10:34,448 - root - INFO - --- IoU by Class: [0.77137554 0.83727464 0.69890647 0.60963505 0.81674843 0.503079
+ 0.35871115 0.91204477] ---
+2023-03-03 18:14:28,466 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.90      0.84      0.87  17287159
+        Mata       0.97      0.86      0.91  64497596
+      Sombra       0.74      0.93      0.82  11525775
+ Regeneracao       0.89      0.66      0.76  35927788
+ Agricultura       0.85      0.96      0.90  28838187
+       Rocha       0.52      0.93      0.67   9374260
+        Solo       0.39      0.83      0.53   3166452
+        Agua       0.94      0.97      0.95   5543551
+
+    accuracy                           0.84 176160768
+   macro avg       0.77      0.87      0.80 176160768
+weighted avg       0.88      0.84      0.85 176160768
+
+
