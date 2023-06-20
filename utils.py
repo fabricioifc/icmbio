@@ -66,8 +66,8 @@ def convert_from_color(arr_3d, palette=invert_palette):
 def get_random_pos(img, window_shape):
     """ Extract of 2D random patch of shape window_shape in the image """
     w, h = window_shape
-    # W, H = img.shape[-2:]
-    W, H = img.shape[:-1] # CHANGED
+    W, H = img.shape[-2:]
+    # W, H = img.shape[:-1] # CHANGED
     x1 = random.randint(0, W - w - 1)
     x2 = x1 + w
     y1 = random.randint(0, H - h - 1)

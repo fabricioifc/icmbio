@@ -219,7 +219,8 @@ class Trainer():
         )
 
         if all:
-            save_test(acc=accuracy, all_preds=all_preds, all_gts=all_gts)
+            save_test(acc=accuracy, all_preds=all_preds, all_gts=all_gts, 
+                      path=os.path.join(self.params['results_folder'], 'segnet256_test_result.npz'))
             return accuracy, all_preds, all_gts
         else:
             return accuracy

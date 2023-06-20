@@ -20,10 +20,13 @@ def is_save_epoch(epoch, ignore_epoch=0):
     return params['save_epoch'] is not None and epoch % params['save_epoch'] == 0 and epoch != ignore_epoch
 
 if __name__=='__main__':
+
+    # Registra o tempo de início do treinamento
+    start_time = time.time()
     
     # Params
     params = {
-        'results_folder': 'tmp\\20230331_cross_entropy_100_epoch_weights_unet',
+        'results_folder': 'tmp\\20230414_cross_entropy_100_epoch_weights_pond_segnet',
         'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all',
         'window_size': (256, 256),
         'cache': True,
@@ -34,7 +37,7 @@ if __name__=='__main__':
         'device': 'cuda',
         'precision' : 'full',
         'model': {
-            'name': 'unet',
+            'name': 'segnet_modificada',
             'pretrained': True
         },
         'optimizer_params': {
@@ -74,15 +77,15 @@ if __name__=='__main__':
     test_labels = pd.read_table('test_labels.txt',header=None).values
     test_labels = [os.path.join(label_dir, f[0]) for f in test_labels]
 
-    train_transform = A.Compose([
-        A.HorizontalFlip(p=0.5),
-        A.VerticalFlip(p=0.5),              
-        ToTensorV2(),
-    ])
+    # train_transform = A.Compose([
+    #     A.HorizontalFlip(p=0.5),
+    #     A.VerticalFlip(p=0.5),              
+    #     ToTensorV2(),
+    # ])
 
     # Create train and test sets
-    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], transform=train_transform)
-    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'])
+    train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], augmentation=True)
+    test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
 
     # # Load dataset classes in pytorch dataloader handler object
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=True)
@@ -95,7 +98,7 @@ if __name__=='__main__':
         "test": test_loader,
     }
     
-    cbkp=None#'tmp\\20230223_cross_entropy_100_epoch_weights_unetplusplus\\unetplusplus_50.pth.tar'
+    cbkp=None
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
@@ -111,6 +114,14 @@ if __name__=='__main__':
             trainer.save(os.path.join(params['results_folder'], 'trained_epoch_{}.pth.tar'.format(epoch)))
             
     trainer.save(os.path.join(params['results_folder'], '{}_{}.pth.tar'.format(params['model']['name'], params['maximum_epochs'])))
+    
+    # Registra o tempo de término do treinamento
+    end_time = time.time()
+    # Calcula o tempo gasto em horas
+    training_time = end_time - start_time
+    training_time_hours = training_time / 3600.0
+    print("Tempo gasto: {:.2f} horas".format(training_time_hours))
+
     # acc, all_preds, all_gts = trainer.test(all=True, stride=min(params['window_size']))
     acc, all_preds, all_gts = trainer.test(all=True, stride=32)
     print(f'Global Accuracy: {acc}')

@@ -20,7 +20,7 @@ from torchmetrics.functional import accuracy
 from torchmetrics.classification import MulticlassJaccardIndex, Accuracy
 from sklearn import metrics
 
-RESULTS_PATH = './results'
+RESULTS_PATH = 'D:\\Projetos\\icmbio\\results'
 
 logging.basicConfig(filename=f'{RESULTS_PATH}/log.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 # Turn off sina logging
@@ -73,7 +73,7 @@ class TestTrained:
         plt.title('Confusion Matrix', fontsize=12)
         # plt.show()
         logging.info(f'--- Exportando Matriz de Confusão ---')
-        fig.savefig(f"{RESULTS_PATH}/cm_all", dpi=fig.dpi, bbox_inches='tight')
+        fig.savefig(f"{RESULTS_PATH}/cm", dpi=fig.dpi, bbox_inches='tight')
         plt.close(fig)
 
         logging.info(f'--- Convertendo Array para Tensor ---')
@@ -108,7 +108,7 @@ class TestTrained:
         return report
 
 if __name__ == '__main__':
-    classes = ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
-    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20230303_cross_entropy_100_epoch_weights_deeplabv3\\segnet256_test_result.npz'
+    classes = ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
+    test_result_path = 'D:\\Projetos\\icmbio\\tmp\\20221123_cross_entropy_weights_pond\\segnet256_test_result.npz'
 
     TestTrained(test_result_path, classes).run()

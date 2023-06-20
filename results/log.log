@@ -37,8 +37,7 @@ weighted avg       0.82      0.81      0.81 167772160
 2023-02-10 08:58:26,841 - root - INFO - --- Exportando Matriz de Confusão ---
 2023-02-10 08:58:27,359 - root - INFO - --- Convertendo Array para Tensor ---
 2023-02-10 08:59:19,964 - root - INFO - --- Accuracy: 0.6516518592834473	 IoU: 0.4041043221950531 ---
-2023-02-10 08:59:19,965 - root - INFO - --- IoU by Class: [0.57466647 0.6152016  0.17771097 0.54847257 0.39342262 0.54348887
- 0.3149271  0.07787279 0.39117602] ---
+2023-02-10 08:59:19,965 - root - INFO - --- IoU by Class: [0.57466647 0.6152016  0.17771097 0.54847257 0.39342262 0.54348887 0.3149271  0.07787279 0.39117602] ---
 2023-02-10 09:02:46,214 - root - INFO - --- Relatório ---
               precision    recall  f1-score   support
 
@@ -358,5 +357,225 @@ weighted avg       0.84      0.80      0.80 176160768
     accuracy                           0.84 176160768
    macro avg       0.77      0.87      0.80 176160768
 weighted avg       0.88      0.84      0.85 176160768
+
+
+2023-04-14 09:00:40,981 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-04-14 09:00:40,982 - root - INFO - --- D:\Projetos\icmbio\tmp\20230412_cross_entropy_100_epoch_no_weights_segnet\segnet256_test_result.npz ---
+2023-04-14 09:00:52,389 - root - INFO - --- Accuracy: 83.03627854301816 ---
+2023-04-14 09:00:52,390 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-04-14 09:01:04,677 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-04-14 09:01:05,280 - root - INFO - --- Convertendo Array para Tensor ---
+2023-04-14 09:02:02,342 - root - INFO - --- Accuracy: 0.8303627967834473	 IoU: 0.6317088603973389 ---
+2023-04-14 09:02:02,344 - root - INFO - --- IoU by Class: [0.775471   0.79082794 0.71015433 0.67635799 0.6716899  0.47943065
+ 0.20584515 0.74389373] ---
+2023-04-14 09:05:43,482 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.88      0.87      0.87  17287159
+        Mata       0.89      0.88      0.88  64497596
+      Sombra       0.84      0.82      0.83  11525775
+ Regeneracao       0.78      0.84      0.81  35927788
+ Agricultura       0.76      0.86      0.80  28838187
+       Rocha       0.78      0.56      0.65   9374260
+        Solo       0.60      0.24      0.34   3166452
+        Agua       0.99      0.75      0.85   5543551
+
+    accuracy                           0.83 176160768
+   macro avg       0.81      0.73      0.76 176160768
+weighted avg       0.83      0.83      0.83 176160768
+
+
+2023-04-15 08:45:33,245 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-04-15 08:45:33,245 - root - INFO - --- D:\Projetos\icmbio\tmp\20230414_cross_entropy_100_epoch_weights_pond_segnet\segnet256_test_result.npz ---
+2023-04-15 08:45:44,828 - root - INFO - --- Accuracy: 74.92184014547439 ---
+2023-04-15 08:45:44,828 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-04-15 08:45:58,054 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-04-15 08:45:59,090 - root - INFO - --- Convertendo Array para Tensor ---
+2023-04-15 08:46:56,392 - root - INFO - --- Accuracy: 0.7492184042930603	 IoU: 0.5664932727813721 ---
+2023-04-15 08:46:56,393 - root - INFO - --- IoU by Class: [0.68908005 0.68525264 0.63748851 0.51403629 0.62442485 0.42651626
+ 0.21109368 0.74405361] ---
+2023-04-15 08:50:44,624 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.80      0.83      0.82  17287159
+        Mata       0.94      0.71      0.81  64497596
+      Sombra       0.68      0.92      0.78  11525775
+ Regeneracao       0.82      0.58      0.68  35927788
+ Agricultura       0.69      0.88      0.77  28838187
+       Rocha       0.47      0.84      0.60   9374260
+        Solo       0.24      0.64      0.35   3166452
+        Agua       0.79      0.93      0.85   5543551
+
+    accuracy                           0.75 176160768
+   macro avg       0.68      0.79      0.71 176160768
+weighted avg       0.80      0.75      0.76 176160768
+
+
+2023-04-15 09:12:01,276 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-04-15 09:12:01,276 - root - INFO - --- D:\Projetos\icmbio\tmp\20230221_cross_entropy_100_epoch_weights_efficientnet\segnet256_test_result.npz ---
+2023-04-15 09:12:11,854 - root - INFO - --- Accuracy: 81.11121995108468 ---
+2023-04-15 09:12:11,854 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-04-15 09:12:23,488 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-04-15 09:12:23,979 - root - INFO - --- Convertendo Array para Tensor ---
+2023-04-15 09:13:17,743 - root - INFO - --- Accuracy: 0.8111121654510498	 IoU: 0.6464493870735168 ---
+2023-04-15 09:13:17,743 - root - INFO - --- IoU by Class: [0.73263503 0.77049561 0.64802097 0.57968667 0.77428424 0.49000526
+ 0.27625252 0.90021462] ---
+2023-04-15 09:16:47,814 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.89      0.81      0.85  17287159
+        Mata       0.96      0.80      0.87  64497596
+      Sombra       0.68      0.94      0.79  11525775
+ Regeneracao       0.86      0.64      0.73  35927788
+ Agricultura       0.80      0.96      0.87  28838187
+       Rocha       0.52      0.91      0.66   9374260
+        Solo       0.31      0.73      0.43   3166452
+        Agua       0.96      0.93      0.95   5543551
+
+    accuracy                           0.81 176160768
+   macro avg       0.75      0.84      0.77 176160768
+weighted avg       0.85      0.81      0.82 176160768
+
+
+2023-06-14 18:12:52,545 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-06-14 18:12:52,546 - root - INFO - --- D:\Projetos\icmbio\tmp\20230412_cross_entropy_100_epoch_no_weights_segnet\segnet256_test_result.npz ---
+2023-06-14 18:13:03,429 - root - INFO - --- Accuracy: 83.03627854301816 ---
+2023-06-14 18:13:03,430 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-06-14 18:13:16,175 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-06-14 18:13:17,257 - root - INFO - --- Convertendo Array para Tensor ---
+2023-06-14 18:14:14,483 - root - INFO - --- Accuracy: 0.8303627967834473	 IoU: 0.6317088603973389 ---
+2023-06-14 18:14:14,483 - root - INFO - --- IoU by Class: [0.775471   0.79082794 0.71015433 0.67635799 0.6716899  0.47943065
+ 0.20584515 0.74389373] ---
+2023-06-14 18:18:01,657 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.88      0.87      0.87  17287159
+        Mata       0.89      0.88      0.88  64497596
+      Sombra       0.84      0.82      0.83  11525775
+ Regeneracao       0.78      0.84      0.81  35927788
+ Agricultura       0.76      0.86      0.80  28838187
+       Rocha       0.78      0.56      0.65   9374260
+        Solo       0.60      0.24      0.34   3166452
+        Agua       0.99      0.75      0.85   5543551
+
+    accuracy                           0.83 176160768
+   macro avg       0.81      0.73      0.76 176160768
+weighted avg       0.83      0.83      0.83 176160768
+
+
+2023-06-14 18:18:11,496 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-06-14 18:18:11,497 - root - INFO - --- D:\Projetos\icmbio\tmp\20230412_cross_entropy_100_epoch_no_weights_segnet\segnet256_test_result.npz ---
+2023-06-14 18:18:22,212 - root - INFO - --- Accuracy: 83.03627854301816 ---
+2023-06-14 18:18:22,213 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-06-14 18:18:34,465 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-06-14 18:18:35,041 - root - INFO - --- Convertendo Array para Tensor ---
+2023-06-14 18:19:33,288 - root - INFO - --- Accuracy: 0.8303627967834473	 IoU: 0.6317088603973389 ---
+2023-06-14 18:19:33,288 - root - INFO - --- IoU by Class: [0.775471   0.79082794 0.71015433 0.67635799 0.6716899  0.47943065
+ 0.20584515 0.74389373] ---
+2023-06-14 18:23:23,088 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.88      0.87      0.87  17287159
+        Mata       0.89      0.88      0.88  64497596
+      Sombra       0.84      0.82      0.83  11525775
+ Regeneracao       0.78      0.84      0.81  35927788
+ Agricultura       0.76      0.86      0.80  28838187
+       Rocha       0.78      0.56      0.65   9374260
+        Solo       0.60      0.24      0.34   3166452
+        Agua       0.99      0.75      0.85   5543551
+
+    accuracy                           0.83 176160768
+   macro avg       0.81      0.73      0.76 176160768
+weighted avg       0.83      0.83      0.83 176160768
+
+
+2023-06-14 18:53:07,973 - root - INFO - 
+
+--- Iniciando o teste para gerar relatórios ---
+2023-06-14 18:53:07,974 - root - INFO - --- D:\Projetos\icmbio\tmp\20230412_cross_entropy_100_epoch_no_weights_segnet\segnet256_test_result.npz ---
+2023-06-14 18:53:19,611 - root - INFO - --- Accuracy: 83.03627854301816 ---
+2023-06-14 18:53:19,612 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-06-14 18:53:32,817 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-06-14 18:53:33,386 - root - INFO - --- Convertendo Array para Tensor ---
+2023-06-14 18:54:34,351 - root - INFO - --- Accuracy: 0.8303627967834473	 IoU: 0.6317088603973389 ---
+2023-06-14 18:54:34,351 - root - INFO - --- IoU by Class: [0.775471   0.79082794 0.71015433 0.67635799 0.6716899  0.47943065
+ 0.20584515 0.74389373] ---
+2023-06-14 18:58:32,941 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.88      0.87      0.87  17287159
+        Mata       0.89      0.88      0.88  64497596
+      Sombra       0.84      0.82      0.83  11525775
+ Regeneracao       0.78      0.84      0.81  35927788
+ Agricultura       0.76      0.86      0.80  28838187
+       Rocha       0.78      0.56      0.65   9374260
+        Solo       0.60      0.24      0.34   3166452
+        Agua       0.99      0.75      0.85   5543551
+
+    accuracy                           0.83 176160768
+   macro avg       0.81      0.73      0.76 176160768
+weighted avg       0.83      0.83      0.83 176160768
+
+--- Iniciando o teste para gerar relatórios ---
+2023-06-20 12:54:54,014 - root - INFO - --- D:\Projetos\icmbio\tmp\20221122_cross_entropy\segnet256_test_result.npz ---
+2023-06-20 12:55:05,497 - root - INFO - --- Accuracy: 79.47746764781864 ---
+2023-06-20 12:55:05,498 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-06-20 12:55:17,860 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-06-20 12:55:18,438 - root - INFO - --- Convertendo Array para Tensor ---
+2023-06-20 12:56:16,024 - root - INFO - --- Accuracy: 0.7947747111320496	 IoU: 0.4726245105266571 ---
+2023-06-20 12:56:16,024 - root - INFO - --- IoU by Class: [0.60460952 0.8001731  0.31036752 0.44213518 0.56461549 0.11001942
+ 0.58440125 0.         0.83729929] ---
+2023-06-20 13:00:04,263 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.69      0.83      0.75  24658692
+        Mata       0.85      0.94      0.89  90147113
+     Piscina       0.46      0.49      0.47    421164
+      Sombra       0.86      0.48      0.61   9540370
+ Regeneracao       0.65      0.81      0.72  23871338
+ Agricultura       0.82      0.11      0.20  10732760
+       Rocha       0.94      0.61      0.74  14840734
+        Solo       0.00      0.00      0.00   1465921
+        Agua       0.95      0.87      0.91   4676980
+
+    accuracy                           0.79 180355072
+   macro avg       0.69      0.57      0.59 180355072
+weighted avg       0.80      0.79      0.77 180355072
+
+--- Iniciando o teste para gerar relatórios ---
+2023-06-20 13:52:30,416 - root - INFO - --- D:\Projetos\icmbio\tmp\20221123_cross_entropy_weights_pond\segnet256_test_result.npz ---
+2023-06-20 13:52:41,176 - root - INFO - --- Accuracy: 61.525349838789126 ---
+2023-06-20 13:52:41,176 - root - INFO - --- Geranco a Matriz de Confusão ---
+2023-06-20 13:52:53,178 - root - INFO - --- Exportando Matriz de Confusão ---
+2023-06-20 13:52:53,774 - root - INFO - --- Convertendo Array para Tensor ---
+2023-06-20 13:53:50,955 - root - INFO - --- Accuracy: 0.6152535080909729	 IoU: 0.23333166539669037 ---
+2023-06-20 13:53:50,955 - root - INFO - --- IoU by Class: [0.31096671 0.62098518 0.33981532 0.24384003 0.3267469  0.
+ 0.06294994 0.07633839 0.11834253] ---
+2023-06-20 13:57:33,456 - root - INFO - --- Relatório ---
+              precision    recall  f1-score   support
+
+      Urbano       0.67      0.37      0.47  24658692
+        Mata       0.63      0.98      0.77  90147113
+     Piscina       0.44      0.60      0.51    421164
+      Sombra       0.92      0.25      0.39   9540370
+ Regeneracao       0.87      0.34      0.49  23871338
+ Agricultura       0.00      0.00      0.00  10732760
+       Rocha       0.77      0.06      0.12  14840734
+        Solo       0.08      0.55      0.14   1465921
+        Agua       0.38      0.15      0.21   4676980
+
+    accuracy                           0.62 180355072
+   macro avg       0.53      0.37      0.34 180355072
+weighted avg       0.64      0.62      0.55 180355072
 
 
