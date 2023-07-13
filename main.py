@@ -26,11 +26,11 @@ if __name__=='__main__':
     
     # Params
     params = {
-        'results_folder': 'tmp\\20230414_cross_entropy_100_epoch_weights_pond_segnet',
+        'results_folder': 'tmp\\20230711_cross_entropy_100_epoch_segnet_focalloss',
         'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all',
         'window_size': (256, 256),
         'cache': True,
-        'bs': 16,
+        'bs': 8,
         'n_classes': 8,
         'classes': ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
         'cpu': None,
@@ -59,9 +59,9 @@ if __name__=='__main__':
     
     # Carregar os pesos de cada classe, calculados pelo arquivo `extra\weights_calcupator.py`
     params['weights'] = torch.ones(params['n_classes'])
-    loss_weights = load_loss_weights('./loss_weights.npy')
-    if loss_weights is not None:
-        params['weights'] = torch.from_numpy(loss_weights['weights']).float()
+    # loss_weights = load_loss_weights('./loss_weights.npy')
+    # if loss_weights is not None:
+    #     params['weights'] = torch.from_numpy(loss_weights['weights']).float()
 
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
@@ -98,7 +98,7 @@ if __name__=='__main__':
         "test": test_loader,
     }
     
-    cbkp=None
+    cbkp='tmp/20230711_cross_entropy_100_epoch_segnet_focalloss/trained_epoch_70.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)

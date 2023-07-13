@@ -2285,6 +2285,18 @@ def build_model(model_name: str, params: list):
             classes=params['n_classes'],        # model output channels (number of classes in your dataset)
             activation=None,
         )
+    elif model_name == 'unet_bn':
+        model = smp.Unet(
+            encoder_name='efficientnet-b0',  # Nome do encoder, como 'resnet34', 'resnet50', etc.
+            encoder_weights='imagenet',  # Carregar os pesos pré-treinados do encoder
+            in_channels=3,  # Número de canais de entrada da imagem (por exemplo, 3 para imagens coloridas RGB)
+            classes=params['n_classes'],  # Número de classes para segmentação (por exemplo, 1 para segmentação binária)
+            activation=None,  # Função de ativação da camada de saída (por exemplo, 'sigmoid' para segmentação binária ou 'softmax' para segmentação multiclasse)
+            decoder_use_batchnorm=True, # Usar BatchNorm após cada camada do decoder
+            encoder_depth=5,  # Profundidade do encoder (número de camadas)
+            decoder_channels=[256, 128, 64, 32, 16],  # Número de canais nas camadas do decoder
+            decoder_attention_type=None,  # Tipo de atenção (opcional, pode ser None)
+        )
     elif model_name == 'unetplusplus':
         model = smp.UnetPlusPlus(
             encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
