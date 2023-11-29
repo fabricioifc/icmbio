@@ -7,9 +7,12 @@
  - Tempo para treinamento: 42h
  - Tempo para teste: 4h
 
+# Dataset
+O conjunto de dados pode ser baixado em: https://drive.google.com/file/d/1T_0pt1KxX4SYxqmsb5wnac6RYWpW5j_E/view
+
 # Resultados
 
- - Precisão global: 80,06%
+ 
 
 # Sugestões dos professores
 
