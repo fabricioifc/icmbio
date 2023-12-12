@@ -86,34 +86,34 @@ class WeightsCalculator():
         return np.around(arr, decimals=decimals)
   
 # Função para calcular o peso de cada classe em um conjunto de imagens (labels)        
-if __name__=='__main__':
+# if __name__=='__main__':
 
-    label_dir = os.path.join('D:\\datasets\\ICMBIO_NOVO\\all', 'label')
-    train_labels = pd.read_table('train_labels.txt',header=None).values
-    train_labels = [os.path.join(label_dir, f[0]) for f in train_labels]
+#     label_dir = os.path.join('D:\\datasets\\ICMBIO_NOVO\\all', 'label')
+#     train_labels = pd.read_table('train_labels.txt',header=None).values
+#     train_labels = [os.path.join(label_dir, f[0]) for f in train_labels]
     
-    wc= WeightsCalculator(
-        train_labels=train_labels,
-        classes=["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
-        dev=False,
-        filename='loss_weights'
-    )
-    weights, weights_norm = wc.calculate_and_save()
+#     wc= WeightsCalculator(
+#         train_labels=train_labels,
+#         classes=["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
+#         dev=False,
+#         filename='loss_weights'
+#     )
+#     weights, weights_norm = wc.calculate_and_save()
     
-    print(weights)
-    print(weights_norm)
+#     print(weights)
+#     print(weights_norm)
     
-    # N = [114042226, 497764795, 1795239, 56643355, 173535660, 21323789, 29305581, 0]
-    # C = 9
-    # M = 910163968
+#     # N = [114042226, 497764795, 1795239, 56643355, 173535660, 21323789, 29305581, 0]
+#     # C = 9
+#     # M = 910163968
     
-    # pesos = np.divide(M, [C*n for n in N])
-    # print(pesos)
-    # print(np.divide(pesos, np.linalg.norm(pesos)))
+#     # pesos = np.divide(M, [C*n for n in N])
+#     # print(pesos)
+#     # print(np.divide(pesos, np.linalg.norm(pesos)))
     
-    # classes = ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
-    # weights = [0.88677092, 4.92204386, 56.33195902, 1.7853697, 0.58275821, 4.74255911, 3.45085565, 13.91675129, 11.91636944]
-    # weights_norm = [0.01483752, 0.08235605, 0.942551, 0.02987295, 0.00975076, 0.07935289, 0.05774, 0.23285624, 0.19938568]
+#     # classes = ["Urbano", "Mata", "Piscina", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"]
+#     # weights = [0.88677092, 4.92204386, 56.33195902, 1.7853697, 0.58275821, 4.74255911, 3.45085565, 13.91675129, 11.91636944]
+#     # weights_norm = [0.01483752, 0.08235605, 0.942551, 0.02987295, 0.00975076, 0.07935289, 0.05774, 0.23285624, 0.19938568]
     
-    # df = pd.DataFrame({'weights': weights, 'weights_norm': weights_norm}, columns=classes)
-    # print(df)
+#     # df = pd.DataFrame({'weights': weights, 'weights_norm': weights_norm}, columns=classes)
+#     # print(df)

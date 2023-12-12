@@ -8,7 +8,6 @@ from utils import load_loss_weights, batch_mean_and_sd
 
 from dataset import DatasetIcmbio
 from trainer import Trainer
-from trainer_segformer import TrainerSegformer
 from models import build_model
 import matplotlib.pyplot as plt
 from utils import clear, convert_to_color, make_optimizer, seed_everything, visualize_augmentations
@@ -18,7 +17,38 @@ from albumentations.pytorch import ToTensorV2
 
 def is_save_epoch(epoch, ignore_epoch=0):
     return params['save_epoch'] is not None and epoch % params['save_epoch'] == 0 and epoch != ignore_epoch
+    
+class LossFN:
+    CROSS_ENTROPY = 'cross_entropy'
+    FOCAL_LOSS = 'focal_loss'
 
+class ModelChooser:
+    SEGNET_MODIFICADA = 'segnet_modificada'
+    UNET = 'unet'
+
+def weights_calculator_loss(params, train_labels):
+    try:
+        if params['loss']['name'] == LossFN.CROSS_ENTROPY:
+            if params['loss']['params']['weights'] == 'equal':
+                params['weights'] = torch.ones(params['n_classes'])
+            elif params['loss']['params']['weights'] == 'calculate':
+                if os.path.exists('./loss_weights.npy'):
+                    loss_weights = load_loss_weights('./loss_weights.npy')
+                    params['weights'] = torch.from_numpy(loss_weights['weights']).float()
+                else:
+                    import extra.weights_calculator as wc
+                    loss_weights, _ = wc.WeightsCalculator(train_labels, params['classes'], dev=False).calculate_and_save()
+                    params['weights'] = torch.from_numpy(loss_weights).float()
+        elif params['loss']['name'] == LossFN.FOCAL_LOSS:
+            params['weights'] = torch.ones(params['n_classes'])
+
+        # Imprimindo os pesos das classes para a loss
+        print(params['weights'])
+    except Exception as e:
+        print(e)
+        raise e
+    
+    
 if __name__=='__main__':
 
     # Registra o tempo de início do treinamento
@@ -26,20 +56,16 @@ if __name__=='__main__':
     
     # Params
     params = {
-        'results_folder': 'tmp\\20230711_cross_entropy_100_epoch_segnet_focalloss',
-        'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all',
-        'window_size': (256, 256),
+        'results_folder': 'tmp\\20231211_cross_entropy_100_epoch_segnet_focalloss', # Pasta onde serão salvos os resultados
+        'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all', # Diretório raiz dos dados
+        'window_size': (256, 256), # Tamanho das imagens de entrada da rede
         'cache': True,
-        'bs': 8,
-        'n_classes': 8,
-        'classes': ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"],
-        'cpu': None,
-        'device': 'cuda',
-        'precision' : 'full',
-        'model': {
-            'name': 'segnet_modificada',
-            'pretrained': True
-        },
+        'bs': 8, # Batch size
+        'n_classes': 8, # Número de classes
+        'classes': ["Urbano", "Mata", "Sombra", "Regeneracao", "Agricultura", "Rocha", "Solo", "Agua"], # Nome das classes
+        'cpu': None, # CPU ou GPU. Se None, será usado GPU. Não vai funcionar com CPU
+        'device': 'cuda', # GPU
+        'precision' : 'full', # Precisão dos cálculos. 'full' ou 'half'. 'full' é mais preciso, mas mais lento. 'half' é mais rápido, mas menos preciso. Default: 'full'
         'optimizer_params': {
             'optimizer': 'SGD',
             'lr': 0.01,
@@ -51,18 +77,23 @@ if __name__=='__main__':
             'milestones': [25, 35, 45],
             'gamma': 0.1
         },
-        'weights': '',
-        'maximum_epochs': 100,
-        'save_epoch': 10,
-        'print_each': 500,
+        'weights': '', # Peso de cada classe para a loss. Será calculado automaticamente em seguida
+        'maximum_epochs': 100, # Número de épocas de treinaento
+        'save_epoch': 10, # Salvar o modelo a cada n épocas para evitar perder o treinamento caso ocorra algum erro ou queda de energia
+        'print_each': 500, # Print each n iterations (apenas para acompanhar visualmente o treinamento)
+        'loss': {
+            'name': LossFN.CROSS_ENTROPY, # Escolha entre 'CROSS_ENTROPY' ou 'FOCAL_LOSS'
+            'params': {
+                'weights': 'calculate', # Escolha entre 'equal' ou 'calculate'. Se 'equal', os pesos serão iguais. Se 'calculate', os pesos serão calculados pelo arquivo `extra\weights_calculator.py`
+                'alpha': 0.5, # Somente para FOCAL_LOSS. Informe um valor float. Default: 0.5
+                'gamma': 2.0, # Somente para FOCAL_LOSS. Informe um valor float. Default: 2.0
+            }
+        },
+        'model': {
+            'name': ModelChooser.UNET, # Escolha entre 'segnet_modificada' ou 'unet
+        },
     }
     
-    # Carregar os pesos de cada classe, calculados pelo arquivo `extra\weights_calcupator.py`
-    params['weights'] = torch.ones(params['n_classes'])
-    # loss_weights = load_loss_weights('./loss_weights.npy')
-    # if loss_weights is not None:
-    #     params['weights'] = torch.from_numpy(loss_weights['weights']).float()
-
     image_dir = os.path.join(params['root_dir'], 'images')
     label_dir = os.path.join(params['root_dir'], 'label')
 
@@ -77,19 +108,16 @@ if __name__=='__main__':
     test_labels = pd.read_table('test_labels.txt',header=None).values
     test_labels = [os.path.join(label_dir, f[0]) for f in test_labels]
 
-    # train_transform = A.Compose([
-    #     A.HorizontalFlip(p=0.5),
-    #     A.VerticalFlip(p=0.5),              
-    #     ToTensorV2(),
-    # ])
+    # Carregar os pesos de cada classe, calculados pelo arquivo `extra\weights_calcupator.py`
+    weights_calculator_loss(params, train_labels)    
 
     # Create train and test sets
     train_dataset = DatasetIcmbio(train_images, train_labels, window_size = params['window_size'], cache = params['cache'], augmentation=True)
     test_dataset = DatasetIcmbio(test_images, test_labels, window_size = params['window_size'], cache = params['cache'], augmentation=False)
 
     # # Load dataset classes in pytorch dataloader handler object
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = params['bs'], num_workers=0, pin_memory=False, shuffle=False)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = params['bs'], shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = params['bs'], shuffle=False)
 
     model = build_model(model_name=params['model']['name'], params=params)
 
@@ -98,7 +126,7 @@ if __name__=='__main__':
         "test": test_loader,
     }
     
-    cbkp='tmp/20230711_cross_entropy_100_epoch_segnet_focalloss/trained_epoch_70.pth.tar'
+    cbkp=None#'tmp/20230711_cross_entropy_100_epoch_segnet_focalloss/trained_epoch_70.pth.tar'
     trainer = Trainer(model, loader, params, cbkp=cbkp)
     # print(trainer.test(stride = 32, all = False))
     # _, all_preds, all_gts = trainer.test(all=True, stride=32)
