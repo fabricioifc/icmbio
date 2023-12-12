@@ -30,6 +30,7 @@ git --version
 
 ```bash
 git clone https://github.com/fabricioifc/icmbio.git
+git checkout alan
 ```
 
 ## 3. Instalação da biblioteca Virtualenv
