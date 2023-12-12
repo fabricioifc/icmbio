@@ -120,18 +120,18 @@ params = {
 
 ## Equipe de trabalho
 
-- Andre de Souza Brito (LNCC)
-- Fabricio Bizotto (UTFPR/IFC)
-- Gilson Giraldi (LNCC)
-- Mauren Luise Sguario de Andrade (UTFPR)
+- [Andre de Souza Brito](https://www.linkedin.com/in/andr%C3%A9-de-souza-brito-4b0a62a2/)
+- [Fabricio Bizotto (UTFPR/IFC)](https://www.linkedin.com/in/fabricio-bizotto-0aa27131/)
+- [Gilson Giraldi (LNCC)](https://www.lncc.br/~gilson/)
+- [Mauren Luise Sguario de Andrade (UTFPR)](https://www.linkedin.com/in/mauren-louise-sguario-coelho-de-andrade-3291b731/?originalSubdomain=br)
 
 ## Agradecimentos
 
-- [LNCC](https://www.lncc.br/)
 - [UTFPR](https://portal.utfpr.edu.br/)
-- [IFC](https://www.ifc.edu.br/)
+- [LNCC](https://www.lncc.br/)
 - [ICMBio](https://www.gov.br/icmbio/pt-br)
 - [Google Earth](https://www.google.com/earth/)
+- [IFC](https://www.ifc.edu.br/)
 
 ## Direitos autorais
 
