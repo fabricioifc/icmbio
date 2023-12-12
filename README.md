@@ -6,6 +6,10 @@ Este projeto tem como objetivo a segmentação semântica de imagens de satélit
 
 Esse procedimento foi testado no sistema operacional `Windows 10 64 bits`. Para outros sistemas operacionais, pode ser necessário realizar algumas adaptações. Siga os passos abaixo para executar o código:
 
+## 0. Download do dataset
+
+O dataset pode ser baixado [aqui](https://drive.google.com/file/d/1T_0pt1KxX4SYxqmsb5wnac6RYWpW5j_E/view). Após o download, extraia o arquivo `dataset.zip` para uma pasta de sua preferência. O resultado será uma pasta chamada `all` contendo as imagens de treinamento e teste. Essa pasta deve ser informada no parâmetro `root_dir` do arquivo `main.py`.
+
 ## 1. Instalação das ferramentas
  - [Python](https://www.python.org/downloads/) (versão 3.10.11)
  - [pip](https://pip.pypa.io/en/stable/installation/) (versão 23.3.1)
@@ -60,12 +64,6 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## Observações
-
-- O código foi testado com a GPU NVIDIA GeForce RTX 3060 12GB.
-- O código foi testado com o sistema operacional `Windows 10 64 bits`.
-- O código foi testado com o Python 3.10.11.
-
 ## Parâmetros de execução (default)
 
 ```python
@@ -109,12 +107,30 @@ params = {
 }
 ```
 
+## Imagens de entrada
+
+> Para definir as imagens que serão usadas no treinamento e teste, basta alterar o arquivo train_images.txt e test_images.txt, respectivamente. Cada linha do arquivo deve conter o nome da imagem, com a extensão. Por exemplo, se a imagem for `D:\datasets\ICMBIO_NOVO\all\001.tif`, então a linha deve ser `001.tif`.
+
+## Observações
+
+- O código foi testado com a GPU NVIDIA GeForce RTX 3060 12GB.
+- O código foi testado com o sistema operacional `Windows 10 64 bits`.
+- O código foi testado com o Python 3.10.11.
+
 ## Equipe de trabalho
 
 - Andre de Souza Brito (LNCC)
 - Fabricio Bizotto (UTFPR/IFC)
 - Gilson Giraldi (LNCC)
 - Mauren Luise Sguario de Andrade (UTFPR)
+
+## Agradecimentos
+
+- [LNCC](https://www.lncc.br/)
+- [UTFPR](https://portal.utfpr.edu.br/)
+- [IFC](https://www.ifc.edu.br/)
+- [ICMBio](https://www.gov.br/icmbio/pt-br)
+- [Google Earth](https://www.google.com/earth/)
 
 ## Direitos autorais
 
