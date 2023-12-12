@@ -56,7 +56,7 @@ if __name__=='__main__':
     
     # Params
     params = {
-        'results_folder': 'tmp\\20231211_cross_entropy_100_epoch_segnet_focalloss', # Pasta onde serão salvos os resultados
+        'results_folder': 'tmp\\20231211_cross_entropy_100_epoch_segnet', # Pasta onde serão salvos os resultados
         'root_dir': 'D:\\datasets\\ICMBIO_NOVO\\all', # Diretório raiz dos dados
         'window_size': (256, 256), # Tamanho das imagens de entrada da rede
         'cache': True,
