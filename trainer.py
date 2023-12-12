@@ -35,8 +35,15 @@ class Trainer():
         
         # # Weights for class balancing
         self.weight_cls = self.prepare([self.params['weights']])
+        if self.params['loss']['name'] == 'cross_entropy':
+            self.criterion = nn.CrossEntropyLoss(weight=self.weight_cls[0])
+        elif self.params['loss']['name'] == 'focal_loss':
+            self.criterion = FocalLoss(mode='multiclass', alpha=self.params['loss']['params']['alpha'], gamma=self.params['loss']['params']['gamma'], reduction='mean')
+        else:
+            raise Exception('Loss function not implemented')
+
         # self.criterion = FocalLoss(mode='multiclass', alpha=0.5, gamma=2.0, reduction='mean')
-        self.criterion = nn.CrossEntropyLoss(weight=self.weight_cls[0], )
+        # self.criterion = nn.CrossEntropyLoss(weight=self.weight_cls[0], )
         # self.criterion = JaccardCELoss()
         
         # Define an id to a trained model. Use the number of seconds since 1970

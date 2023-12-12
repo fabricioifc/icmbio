@@ -8,7 +8,6 @@ import common
 import segmentation_models_pytorch as smp
 import os.path as osp
 import numpy as np
-from transformers import SegformerForSemanticSegmentation
 import pandas as pd
 from efficientnet_pytorch import EfficientNet
 from torchinfo import summary
@@ -2285,52 +2284,39 @@ def build_model(model_name: str, params: list):
             classes=params['n_classes'],        # model output channels (number of classes in your dataset)
             activation=None,
         )
-    elif model_name == 'unet_bn':
-        model = smp.Unet(
-            encoder_name='efficientnet-b0',  # Nome do encoder, como 'resnet34', 'resnet50', etc.
-            encoder_weights='imagenet',  # Carregar os pesos pré-treinados do encoder
-            in_channels=3,  # Número de canais de entrada da imagem (por exemplo, 3 para imagens coloridas RGB)
-            classes=params['n_classes'],  # Número de classes para segmentação (por exemplo, 1 para segmentação binária)
-            activation=None,  # Função de ativação da camada de saída (por exemplo, 'sigmoid' para segmentação binária ou 'softmax' para segmentação multiclasse)
-            decoder_use_batchnorm=True, # Usar BatchNorm após cada camada do decoder
-            encoder_depth=5,  # Profundidade do encoder (número de camadas)
-            decoder_channels=[256, 128, 64, 32, 16],  # Número de canais nas camadas do decoder
-            decoder_attention_type=None,  # Tipo de atenção (opcional, pode ser None)
-        )
-    elif model_name == 'unetplusplus':
-        model = smp.UnetPlusPlus(
-            encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-            classes=params['n_classes'],        # model output channels (number of classes in your dataset)
-            activation=None,
-        )
-    elif model_name == 'efficientnet':
-        model = EfficientNet.from_pretrained(model_name='efficientnet-b0', in_channels=3, num_classes=params['n_classes'])
-    elif model_name == 'segformer':
-        df = pd.read_csv('classes.csv')
-        classes = df['name']
-        palette = df[[' r', ' g', ' b']].values
-        id2label = classes.to_dict()
-        label2id = {v: k for k, v in id2label.items()}
-        num_labels=len(label2id)
-        params['id2label'] = id2label
-        params['palette'] = palette
-
-        model = SegformerForSemanticSegmentation.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512", ignore_mismatched_sizes=True,
-                    num_labels=len(id2label), id2label=id2label, label2id=label2id,
-                    reshape_last_stage=True)
     elif model_name == 'segnet_modificada':
         # model = SegNet(in_channels = 3, out_channels = params['n_classes'])
         model = SegNet_two_pools_test(in_channels = 3, out_channels = params['n_classes'], pretrained = True, pool_type = 'dwt')
-    elif model_name == 'deeplabv3':
-        model = smp.DeepLabV3Plus(
-            encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
-            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-            classes=params['n_classes'],        # model output channels (number of classes in your dataset)
-            activation=None,
-        )
+    # elif model_name == 'unet_bn':
+    #     model = smp.Unet(
+    #         encoder_name='efficientnet-b0',  # Nome do encoder, como 'resnet34', 'resnet50', etc.
+    #         encoder_weights='imagenet',  # Carregar os pesos pré-treinados do encoder
+    #         in_channels=3,  # Número de canais de entrada da imagem (por exemplo, 3 para imagens coloridas RGB)
+    #         classes=params['n_classes'],  # Número de classes para segmentação (por exemplo, 1 para segmentação binária)
+    #         activation=None,  # Função de ativação da camada de saída (por exemplo, 'sigmoid' para segmentação binária ou 'softmax' para segmentação multiclasse)
+    #         decoder_use_batchnorm=True, # Usar BatchNorm após cada camada do decoder
+    #         encoder_depth=5,  # Profundidade do encoder (número de camadas)
+    #         decoder_channels=[256, 128, 64, 32, 16],  # Número de canais nas camadas do decoder
+    #         decoder_attention_type=None,  # Tipo de atenção (opcional, pode ser None)
+    #     )
+    # elif model_name == 'unetplusplus':
+    #     model = smp.UnetPlusPlus(
+    #         encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+    #         encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+    #         in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+    #         classes=params['n_classes'],        # model output channels (number of classes in your dataset)
+    #         activation=None,
+    #     )
+    # elif model_name == 'efficientnet':
+    #     model = EfficientNet.from_pretrained(model_name='efficientnet-b0', in_channels=3, num_classes=params['n_classes'])
+    # elif model_name == 'deeplabv3':
+    #     model = smp.DeepLabV3Plus(
+    #         encoder_name='efficientnet-b0',      # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+    #         encoder_weights="imagenet",     # use `imagenet` pre-trained weights for encoder initialization
+    #         in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+    #         classes=params['n_classes'],        # model output channels (number of classes in your dataset)
+    #         activation=None,
+    #     )
     else:
         raise Exception("{} -> invalid model name.".format(model_name))
     
