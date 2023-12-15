@@ -49,7 +49,8 @@ virtualenv .venv
 ## 5. Ativação do ambiente virtual
 
 ```bash
-.venv\Scripts\activate
+.venv\Scripts\activate # Windows
+source .venv/bin/activate # Linux
 ```
 
 ## 6. Instalação das bibliotecas
