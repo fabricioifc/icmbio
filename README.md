@@ -8,7 +8,7 @@ Esse procedimento foi testado no sistema operacional `Windows 10 64 bits`. Para 
 
 ## 0. Download do dataset
 
-O dataset pode ser baixado [aqui](https://drive.google.com/file/d/1T_0pt1KxX4SYxqmsb5wnac6RYWpW5j_E/view). Após o download, extraia o arquivo `dataset.zip` para uma pasta de sua preferência. O resultado será uma pasta chamada `all` contendo as imagens de treinamento e teste. Essa pasta deve ser informada no parâmetro `root_dir` do arquivo `main.py`.
+O dataset pode ser baixado [aqui](https://drive.google.com/file/d/1rmxywtjX18U5acpbUo4q8kS20anHIhKt/view). Após o download, extraia o arquivo `dataset.zip` para uma pasta de sua preferência. O resultado será uma pasta chamada `all` contendo as imagens de treinamento e teste. Essa pasta deve ser informada no parâmetro `root_dir` do arquivo `main.py`.
 
 ## 1. Instalação das ferramentas
  - [Python](https://www.python.org/downloads/) (versão 3.10.11)
